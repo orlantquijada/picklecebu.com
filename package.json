@@ -1,0 +1,7 @@
+{
+  "name": "picklecebu.com",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
