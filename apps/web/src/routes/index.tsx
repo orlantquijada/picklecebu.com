@@ -1,20 +1,15 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react'
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { allSpeakers, allTalks } from "content-collections";
+import { ArrowRight, Calendar, MapPin, Users } from "lucide-react";
 
-import { allSpeakers, allTalks } from 'content-collections'
+import HeroCarousel from "#/components/HeroCarousel";
+import RemyAssistant from "#/components/RemyAssistant";
+import SpeakerCard from "#/components/SpeakerCard";
+import TalkCard from "#/components/TalkCard";
 
-import SpeakerCard from '#/components/SpeakerCard'
-import TalkCard from '#/components/TalkCard'
-import RemyAssistant from '#/components/RemyAssistant'
-import HeroCarousel from '#/components/HeroCarousel'
-
-export const Route = createFileRoute('/')({
-  component: HomePage,
-})
-
-function HomePage() {
-  const featuredSpeakers = allSpeakers.slice(0, 3)
-  const featuredTalks = allTalks.slice(0, 4)
+const HomePage = () => {
+  const featuredSpeakers = allSpeakers.slice(0, 3);
+  const featuredTalks = allTalks.slice(0, 4);
 
   return (
     <>
@@ -201,5 +196,9 @@ function HomePage() {
         </div>
       </section>
     </>
-  )
-}
+  );
+};
+
+export const Route = createFileRoute("/")({
+  component: HomePage,
+});

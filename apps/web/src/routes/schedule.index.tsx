@@ -1,63 +1,57 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Clock, Calendar, MapPin, ChevronRight } from 'lucide-react'
-import { useState } from 'react'
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { allTalks, allSpeakers } from "content-collections";
+import { Clock, Calendar, MapPin, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-import { allTalks, allSpeakers } from 'content-collections'
-
-import RemyAssistant from '#/components/RemyAssistant'
-
-export const Route = createFileRoute('/schedule/')({
-  component: SchedulePage,
-})
+import RemyAssistant from "#/components/RemyAssistant";
 
 // Helper to get speaker data by name
-function getSpeakerByName(name: string) {
-  return allSpeakers.find((s) => s.name.toLowerCase() === name.toLowerCase())
-}
+const getSpeakerByName = (name: string) =>
+  allSpeakers.find((s) => s.name.toLowerCase() === name.toLowerCase());
 
 // Define the conference schedule with time slots
 const scheduleData = [
   {
+    date: "March 15, 2026",
     day: 1,
-    date: 'March 15, 2026',
-    dayName: 'Day One',
-    theme: 'French Foundations',
+    dayName: "Day One",
     sessions: [
-      { time: '9:00 AM', talkSlug: 'french-macaron-mastery' },
-      { time: '11:30 AM', talkSlug: 'croissant-lamination-secrets' },
-      { time: '3:00 PM', talkSlug: 'the-science-of-sugar' },
+      { talkSlug: "french-macaron-mastery", time: "9:00 AM" },
+      { talkSlug: "croissant-lamination-secrets", time: "11:30 AM" },
+      { talkSlug: "the-science-of-sugar", time: "3:00 PM" },
     ],
+    theme: "French Foundations",
   },
   {
+    date: "March 16, 2026",
     day: 2,
-    date: 'March 16, 2026',
-    dayName: 'Day Two',
-    theme: 'Global Traditions',
+    dayName: "Day Two",
     sessions: [
-      { time: '9:00 AM', talkSlug: 'sourdough-from-starter-to-masterpiece' },
-      { time: '11:30 AM', talkSlug: 'umami-in-pastry-east-meets-west' },
-      { time: '2:30 PM', talkSlug: 'savory-breads-of-the-mediterranean' },
+      { talkSlug: "sourdough-from-starter-to-masterpiece", time: "9:00 AM" },
+      { talkSlug: "umami-in-pastry-east-meets-west", time: "11:30 AM" },
+      { talkSlug: "savory-breads-of-the-mediterranean", time: "2:30 PM" },
     ],
+    theme: "Global Traditions",
   },
   {
+    date: "March 17, 2026",
     day: 3,
-    date: 'March 17, 2026',
-    dayName: 'Day Three',
-    theme: 'Artisan Mastery',
+    dayName: "Day Three",
     sessions: [
-      { time: '9:00 AM', talkSlug: 'the-art-of-the-perfect-tart' },
+      { talkSlug: "the-art-of-the-perfect-tart", time: "9:00 AM" },
       {
-        time: '11:00 AM',
-        talkSlug: 'neapolitan-pizza-tradition-meets-innovation',
+        talkSlug: "neapolitan-pizza-tradition-meets-innovation",
+        time: "11:00 AM",
       },
     ],
+    theme: "Artisan Mastery",
   },
-]
+];
 
-function SchedulePage() {
-  const [selectedDay, setSelectedDay] = useState(1)
+const SchedulePage = () => {
+  const [selectedDay, setSelectedDay] = useState(1);
 
-  const currentDayData = scheduleData.find((d) => d.day === selectedDay)!
+  const currentDayData = scheduleData.find((d) => d.day === selectedDay)!;
 
   return (
     <>
@@ -90,18 +84,19 @@ function SchedulePage() {
               {scheduleData.map((day) => (
                 <button
                   key={day.day}
+                  type="button"
                   onClick={() => setSelectedDay(day.day)}
                   className={`relative px-8 py-4 rounded-xl font-display font-semibold transition-all duration-300 ${
                     selectedDay === day.day
-                      ? 'bg-gradient-to-br from-copper to-copper-dark text-charcoal shadow-lg shadow-copper/20'
-                      : 'text-cream/70 hover:text-cream hover:bg-card'
+                      ? "bg-gradient-to-br from-copper to-copper-dark text-charcoal shadow-lg shadow-copper/20"
+                      : "text-cream/70 hover:text-cream hover:bg-card"
                   }`}
                 >
                   <span className="block text-xs uppercase tracking-wider opacity-75">
                     {day.dayName}
                   </span>
                   <span className="block text-lg">
-                    {day.date.split(',')[0].split(' ').slice(0, 2).join(' ')}
+                    {day.date.split(",")[0].split(" ").slice(0, 2).join(" ")}
                   </span>
                 </button>
               ))}
@@ -113,7 +108,7 @@ function SchedulePage() {
         <div className="max-w-7xl mx-auto px-6 mb-8">
           <div className="text-center">
             <h2 className="font-display text-3xl font-bold text-cream mb-2">
-              {currentDayData.dayName}:{' '}
+              {currentDayData.dayName}:{" "}
               <span className="text-gold italic">{currentDayData.theme}</span>
             </h2>
             <p className="text-cream/50 font-body">{currentDayData.date}</p>
@@ -129,10 +124,12 @@ function SchedulePage() {
             {/* Sessions */}
             <div className="space-y-8">
               {currentDayData.sessions.map((session, index) => {
-                const talk = allTalks.find((t) => t.slug === session.talkSlug)
-                if (!talk) return null
+                const talk = allTalks.find((t) => t.slug === session.talkSlug);
+                if (!talk) {
+                  return null;
+                }
 
-                const speaker = getSpeakerByName(talk.speaker)
+                const speaker = getSpeakerByName(talk.speaker);
 
                 return (
                   <Link
@@ -156,7 +153,7 @@ function SchedulePage() {
 
                       {/* Session card */}
                       <div
-                        className="flex-1 relative overflow-hidden rounded-2xl bg-card border border-border/50 
+                        className="flex-1 relative overflow-hidden rounded-2xl bg-card border border-border/50
                           group-hover:border-gold/50 transition-all duration-300 group-hover:shadow-xl group-hover:shadow-gold/5
                           group-hover:-translate-y-1"
                         style={{
@@ -237,7 +234,7 @@ function SchedulePage() {
                       </div>
                     </div>
                   </Link>
-                )
+                );
               })}
             </div>
           </div>
@@ -276,5 +273,9 @@ function SchedulePage() {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
+
+export const Route = createFileRoute("/schedule/")({
+  component: SchedulePage,
+});

@@ -1,20 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
-import { Send, X, ChefHat, Croissant } from 'lucide-react'
-import { Streamdown } from 'streamdown'
-import { Store } from '@tanstack/store'
+import { Store } from "@tanstack/store";
+import { Send, X, ChefHat, Croissant } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Streamdown } from "streamdown";
 
-import { useConferenceChat } from '#/lib/conference-ai-hook'
-import type { ConferenceChatMessages } from '#/lib/conference-ai-hook'
+import { useConferenceChat } from "#/lib/conference-ai-hook";
+import type { ConferenceChatMessages } from "#/lib/conference-ai-hook";
 
 function Messages({ messages }: { messages: ConferenceChatMessages }) {
-  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight
+        messagesContainerRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   if (!messages.length) {
     return (
@@ -31,7 +31,7 @@ function Messages({ messages }: { messages: ConferenceChatMessages }) {
           sessions, or pastry techniques!
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -40,16 +40,16 @@ function Messages({ messages }: { messages: ConferenceChatMessages }) {
         <div
           key={id}
           className={`py-3 ${
-            role === 'assistant'
-              ? 'bg-gradient-to-r from-copper/5 via-gold/5 to-copper/5'
-              : 'bg-transparent'
+            role === "assistant"
+              ? "bg-gradient-to-r from-copper/5 via-gold/5 to-copper/5"
+              : "bg-transparent"
           }`}
         >
           {parts.map((part, index) => {
-            if (part.type === 'text' && part.content) {
+            if (part.type === "text" && part.content) {
               return (
                 <div key={index} className="flex items-start gap-3 px-4">
-                  {role === 'assistant' ? (
+                  {role === "assistant" ? (
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-copper via-copper-dark to-gold flex items-center justify-center text-xs font-bold text-charcoal flex-shrink-0 shadow-lg shadow-copper/20">
                       👨‍🍳
                     </div>
@@ -62,58 +62,62 @@ function Messages({ messages }: { messages: ConferenceChatMessages }) {
                     <Streamdown>{part.content}</Streamdown>
                   </div>
                 </div>
-              )
+              );
             }
-            return null
+            return null;
           })}
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 interface RemyAssistantProps {
-  speakerSlug?: string
-  talkSlug?: string
-  contextTitle?: string
+  speakerSlug?: string;
+  talkSlug?: string;
+  contextTitle?: string;
 }
 
 // Export store for header control
-export const showRemyAssistant = new Store(false)
+export const showRemyAssistant = new Store(false);
 
 export default function RemyAssistant({
   speakerSlug,
   talkSlug,
   contextTitle,
 }: RemyAssistantProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const { messages, sendMessage, isLoading } = useConferenceChat(
     speakerSlug,
-    talkSlug,
-  )
-  const [input, setInput] = useState('')
+    talkSlug
+  );
+  const [input, setInput] = useState("");
 
   // Sync with store for header control
-  useEffect(() => {
-    return showRemyAssistant.subscribe(() => {
-      setIsOpen(showRemyAssistant.state)
-    })
-  }, [])
+  useEffect(
+    () =>
+      showRemyAssistant.subscribe(() => {
+        setIsOpen(showRemyAssistant.state);
+      }),
+    []
+  );
 
   const handleToggle = () => {
-    const newState = !isOpen
-    setIsOpen(newState)
-    showRemyAssistant.setState(() => newState)
-  }
+    const newState = !isOpen;
+    setIsOpen(newState);
+    showRemyAssistant.setState(() => newState);
+  };
 
   const handleSend = () => {
     if (input.trim()) {
-      sendMessage(input)
-      setInput('')
+      sendMessage(input);
+      setInput("");
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed top-36 right-4 z-[100] w-[400px] h-[520px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-copper/20 backdrop-blur-xl bg-gradient-to-b from-charcoal/98 via-charcoal/95 to-charcoal-light/98">
@@ -153,9 +157,9 @@ export default function RemyAssistant({
         <div className="px-4 py-3 border-t border-copper/10">
           <div className="flex items-center gap-2 text-copper/80 text-xs">
             <div className="flex gap-1">
-              <span className="w-2 h-2 bg-copper rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-              <span className="w-2 h-2 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-              <span className="w-2 h-2 bg-copper-light rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-copper rounded-full animate-bounce [animation-delay:-0.3s]" />
+              <span className="w-2 h-2 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]" />
+              <span className="w-2 h-2 bg-copper-light rounded-full animate-bounce" />
             </div>
             <span className="font-medium">Crafting a response...</span>
           </div>
@@ -166,8 +170,8 @@ export default function RemyAssistant({
       <div className="relative p-4 border-t border-copper/10 bg-charcoal/50">
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            handleSend()
+            e.preventDefault();
+            handleSend();
           }}
         >
           <div className="relative">
@@ -178,21 +182,21 @@ export default function RemyAssistant({
               disabled={isLoading}
               className="w-full rounded-xl border border-copper/20 bg-charcoal-light/50 pl-4 pr-12 py-3 text-sm text-cream placeholder-cream/30 focus:outline-none focus:ring-2 focus:ring-copper/40 focus:border-transparent resize-none overflow-hidden disabled:opacity-50 transition-all"
               rows={1}
-              style={{ minHeight: '48px', maxHeight: '100px' }}
+              style={{ maxHeight: "100px", minHeight: "48px" }}
               onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement
-                target.style.height = 'auto'
-                target.style.height = Math.min(target.scrollHeight, 100) + 'px'
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = Math.min(target.scrollHeight, 100) + "px";
               }}
               onKeyDown={(e) => {
                 if (
-                  e.key === 'Enter' &&
+                  e.key === "Enter" &&
                   !e.shiftKey &&
                   input.trim() &&
                   !isLoading
                 ) {
-                  e.preventDefault()
-                  handleSend()
+                  e.preventDefault();
+                  handleSend();
                 }
               }}
             />
@@ -207,5 +211,5 @@ export default function RemyAssistant({
         </form>
       </div>
     </div>
-  )
+  );
 }

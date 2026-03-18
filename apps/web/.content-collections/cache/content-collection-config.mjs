@@ -2,48 +2,50 @@
 import { defineCollection, defineConfig } from "@content-collections/core";
 import { z } from "zod";
 var speakers = defineCollection({
-  name: "speakers",
   directory: "content/speakers",
   include: "**/*.md",
+  name: "speakers",
   schema: z.object({
-    name: z.string(),
-    title: z.string(),
-    specialty: z.string(),
-    restaurant: z.string(),
-    location: z.string(),
-    headshot: z.string(),
     awards: z.array(z.string()).optional(),
-    content: z.string()
+    content: z.string(),
+    headshot: z.string(),
+    location: z.string(),
+    name: z.string(),
+    restaurant: z.string(),
+    specialty: z.string(),
+    title: z.string(),
   }),
-  transform: async (doc) => {
-    return {
-      ...doc,
-      slug: doc.name.toLowerCase().replace(/[^\w-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
-    };
-  }
+  transform: (doc) => ({
+    ...doc,
+    slug: doc.name
+      .toLowerCase()
+      .replaceAll(/[^\w-]+/g, "-")
+      .replaceAll(/-+/g, "-")
+      .replaceAll(/^-|-$/g, ""),
+  }),
 });
 var talks = defineCollection({
-  name: "talks",
   directory: "content/talks",
   include: "**/*.md",
+  name: "talks",
   schema: z.object({
-    title: z.string(),
-    speaker: z.string(),
+    content: z.string(),
     duration: z.string(),
     image: z.string(),
+    speaker: z.string(),
+    title: z.string(),
     topics: z.array(z.string()),
-    content: z.string()
   }),
-  transform: async (doc) => {
-    return {
-      ...doc,
-      slug: doc.title.toLowerCase().replace(/[^\w-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
-    };
-  }
+  transform: (doc) => ({
+    ...doc,
+    slug: doc.title
+      .toLowerCase()
+      .replaceAll(/[^\w-]+/g, "-")
+      .replaceAll(/-+/g, "-")
+      .replaceAll(/^-|-$/g, ""),
+  }),
 });
 var content_collections_default = defineConfig({
-  collections: [speakers, talks]
+  collections: [speakers, talks],
 });
-export {
-  content_collections_default as default
-};
+export { content_collections_default as default };

@@ -1,27 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { marked } from 'marked'
-import { MapPin, Award, ArrowLeft } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import { allSpeakers, allTalks } from "content-collections";
+import { MapPin, Award, ArrowLeft } from "lucide-react";
+import { marked } from "marked";
 
-import { allSpeakers, allTalks } from 'content-collections'
+import RemyAssistant from "#/components/RemyAssistant";
+import TalkCard from "#/components/TalkCard";
 
-import RemyAssistant from '#/components/RemyAssistant'
-import TalkCard from '#/components/TalkCard'
-
-export const Route = createFileRoute('/speakers/$slug')({
-  loader: async ({ params }) => {
-    const speaker = allSpeakers.find((s) => s.slug === params.slug)
-    if (!speaker) {
-      throw new Error('Speaker not found')
-    }
-    const speakerTalks = allTalks.filter((t) => t.speaker === speaker.name)
-    return { speaker, speakerTalks }
-  },
-  component: SpeakerDetailPage,
-})
-
-function SpeakerDetailPage() {
-  const { speaker, speakerTalks } = Route.useLoaderData()
+const SpeakerDetailPage = () => {
+  const { speaker, speakerTalks } = Route.useLoaderData();
 
   return (
     <div className="min-h-screen">
@@ -120,5 +107,17 @@ function SpeakerDetailPage() {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
+
+export const Route = createFileRoute("/speakers/$slug")({
+  component: SpeakerDetailPage,
+  loader: ({ params }) => {
+    const speaker = allSpeakers.find((s) => s.slug === params.slug);
+    if (!speaker) {
+      throw new Error("Speaker not found");
+    }
+    const speakerTalks = allTalks.filter((t) => t.speaker === speaker.name);
+    return { speaker, speakerTalks };
+  },
+});

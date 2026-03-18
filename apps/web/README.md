@@ -1,4 +1,4 @@
-Welcome to your new TanStack Start app! 
+Welcome to your new TanStack Start app!
 
 # Getting Started
 
@@ -38,7 +38,6 @@ If you prefer not to use Tailwind CSS:
 3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
 4. Uninstall the packages: `bun install @tailwindcss/vite tailwindcss -D`
 
-
 ## T3Env
 
 - You can use T3Env to add type safety to your environment variables.
@@ -53,10 +52,6 @@ import { env } from "#/env";
 console.log(env.VITE_APP_TITLE);
 ```
 
-
-
-
-
 ## Shadcn
 
 Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
@@ -64,7 +59,6 @@ Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
 ```bash
 pnpm dlx shadcn@latest add button
 ```
-
 
 # Events Example - Haute Pâtisserie 2026
 
@@ -78,17 +72,20 @@ A beautiful pastry conference website built with TanStack Start and Netlify, fea
 ## Features
 
 ### Content Management
+
 - Speaker profiles with bios, awards, and specialty information
 - Session details with topics, duration, and speaker attribution
 - All content in markdown files using content-collections
 
 ### AI-Powered Assistance
+
 - Chat with "Remy" the culinary assistant
 - Search for speakers and sessions by topic
 - Get recommendations based on interests
 - Supports multiple AI providers (Anthropic, OpenAI, Gemini, Ollama)
 
 ### Routes
+
 - `/` - Home page with featured speakers and sessions
 - `/schedule` - Conference schedule with day-by-day timeline
 - `/speakers` - All speakers grid
@@ -135,6 +132,7 @@ The assistant will automatically use the first available provider.
 ## Customization
 
 ### Adding Speakers
+
 Create a new markdown file in `content/speakers/`:
 
 ```markdown
@@ -154,6 +152,7 @@ Bio content here...
 ```
 
 ### Adding Sessions
+
 Create a new markdown file in `content/talks/`:
 
 ```markdown
@@ -173,11 +172,10 @@ Session description here...
 ## Theme
 
 The example uses a custom dark theme with:
+
 - **Font**: Playfair Display (display) and Cormorant Garamond (body)
 - **Colors**: Copper and gold accents on a dark charcoal background
 - **Effects**: Elegant card hover animations, grain texture overlay
-
-
 
 ## Routing
 
@@ -216,14 +214,14 @@ In the File Based Routing setup the layout is located in `src/routes/__root.tsx`
 Here is an example layout that includes a header:
 
 ```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "My App" },
     ],
   }),
   shellComponent: ({ children }) => (
@@ -243,7 +241,7 @@ export const Route = createRootRoute({
       </body>
     </html>
   ),
-})
+});
 ```
 
 More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
@@ -253,23 +251,23 @@ More information on layouts can be found in the [Layouts documentation](https://
 TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
 
 ```tsx
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from "@tanstack/react-start";
 
 const getServerTime = createServerFn({
-  method: 'GET',
+  method: "GET",
 }).handler(async () => {
-  return new Date().toISOString()
-})
+  return new Date().toISOString();
+});
 
 // Use in a component
 function MyComponent() {
-  const [time, setTime] = useState('')
-  
+  const [time, setTime] = useState("");
+
   useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
+    getServerTime().then(setTime);
+  }, []);
+
+  return <div>Server time: {time}</div>;
 }
 ```
 
@@ -278,16 +276,16 @@ function MyComponent() {
 You can create API routes by using the `server` property in your route definitions:
 
 ```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
+import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start";
 
-export const Route = createFileRoute('/api/hello')({
+export const Route = createFileRoute("/api/hello")({
   server: {
     handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
+      GET: () => json({ message: "Hello, World!" }),
     },
   },
-})
+});
 ```
 
 ## Data Fetching
@@ -297,25 +295,25 @@ There are multiple ways to fetch data in your application. You can use TanStack 
 For example:
 
 ```tsx
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/people')({
+export const Route = createFileRoute("/people")({
   loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
+    const response = await fetch("https://swapi.dev/api/people");
+    return response.json();
   },
   component: PeopleComponent,
-})
+});
 
 function PeopleComponent() {
-  const data = Route.useLoaderData()
+  const data = Route.useLoaderData();
   return (
     <ul>
       {data.results.map((person) => (
         <li key={person.name}>{person.name}</li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
