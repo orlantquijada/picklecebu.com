@@ -9,21 +9,67 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
+import { Route as V7RouteImport } from './routes/v7'
+import { Route as V6RouteImport } from './routes/v6'
+import { Route as V5RouteImport } from './routes/v5'
+import { Route as V4RouteImport } from './routes/v4'
+import { Route as V3RouteImport } from './routes/v3'
+import { Route as V2RouteImport } from './routes/v2'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TalksIndexRouteImport } from './routes/talks.index'
-import { Route as SpeakersIndexRouteImport } from './routes/speakers.index'
-import { Route as ScheduleIndexRouteImport } from './routes/schedule.index'
-import { Route as TalksSlugRouteImport } from './routes/talks.$slug'
-import { Route as SpeakersSlugRouteImport } from './routes/speakers.$slug'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as ApiRemyChatRouteImport } from './routes/api.remy-chat'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DashboardLoginRouteImport } from './routes/dashboard/login'
+import { Route as DashboardBookingsRouteImport } from './routes/dashboard/bookings'
+import { Route as CourtsSlugRouteImport } from './routes/courts/$slug'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminCourtsRouteImport } from './routes/admin/courts'
+import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
+import { Route as CourtsSlugIndexRouteImport } from './routes/courts/$slug/index'
+import { Route as DashboardCourtsIdRouteImport } from './routes/dashboard/courts.$id'
+import { Route as CourtsSlugConfirmRouteImport } from './routes/courts/$slug/confirm'
+import { Route as CourtsSlugBookRouteImport } from './routes/courts/$slug/book'
+import { Route as AdminCourtsNewRouteImport } from './routes/admin/courts.new'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const V7Route = V7RouteImport.update({
+  id: '/v7',
+  path: '/v7',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V6Route = V6RouteImport.update({
+  id: '/v6',
+  path: '/v6',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V5Route = V5RouteImport.update({
+  id: '/v5',
+  path: '/v5',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V4Route = V4RouteImport.update({
+  id: '/v4',
+  path: '/v4',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V3Route = V3RouteImport.update({
+  id: '/v3',
+  path: '/v3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V2Route = V2RouteImport.update({
+  id: '/v2',
+  path: '/v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,155 +77,283 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TalksIndexRoute = TalksIndexRouteImport.update({
-  id: '/talks/',
-  path: '/talks/',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const DashboardLoginRoute = DashboardLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBookingsRoute = DashboardBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const CourtsSlugRoute = CourtsSlugRouteImport.update({
+  id: '/courts/$slug',
+  path: '/courts/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SpeakersIndexRoute = SpeakersIndexRouteImport.update({
-  id: '/speakers/',
-  path: '/speakers/',
-  getParentRoute: () => rootRouteImport,
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
 } as any)
-const ScheduleIndexRoute = ScheduleIndexRouteImport.update({
-  id: '/schedule/',
-  path: '/schedule/',
-  getParentRoute: () => rootRouteImport,
+const AdminCourtsRoute = AdminCourtsRouteImport.update({
+  id: '/courts',
+  path: '/courts',
+  getParentRoute: () => AdminRoute,
 } as any)
-const TalksSlugRoute = TalksSlugRouteImport.update({
-  id: '/talks/$slug',
-  path: '/talks/$slug',
-  getParentRoute: () => rootRouteImport,
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminRoute,
 } as any)
-const SpeakersSlugRoute = SpeakersSlugRouteImport.update({
-  id: '/speakers/$slug',
-  path: '/speakers/$slug',
-  getParentRoute: () => rootRouteImport,
+const CourtsSlugIndexRoute = CourtsSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CourtsSlugRoute,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
+const DashboardCourtsIdRoute = DashboardCourtsIdRouteImport.update({
+  id: '/courts/$id',
+  path: '/courts/$id',
+  getParentRoute: () => DashboardRoute,
 } as any)
-const ApiRemyChatRoute = ApiRemyChatRouteImport.update({
-  id: '/api/remy-chat',
-  path: '/api/remy-chat',
-  getParentRoute: () => rootRouteImport,
+const CourtsSlugConfirmRoute = CourtsSlugConfirmRouteImport.update({
+  id: '/confirm',
+  path: '/confirm',
+  getParentRoute: () => CourtsSlugRoute,
 } as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
+const CourtsSlugBookRoute = CourtsSlugBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => CourtsSlugRoute,
 } as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRouteImport,
+const AdminCourtsNewRoute = AdminCourtsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminCourtsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/api/remy-chat': typeof ApiRemyChatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/speakers/$slug': typeof SpeakersSlugRoute
-  '/talks/$slug': typeof TalksSlugRoute
-  '/schedule/': typeof ScheduleIndexRoute
-  '/speakers/': typeof SpeakersIndexRoute
-  '/talks/': typeof TalksIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/v2': typeof V2Route
+  '/v3': typeof V3Route
+  '/v4': typeof V4Route
+  '/v5': typeof V5Route
+  '/v6': typeof V6Route
+  '/v7': typeof V7Route
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/courts': typeof AdminCourtsRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/courts/$slug': typeof CourtsSlugRouteWithChildren
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/admin/courts/new': typeof AdminCourtsNewRoute
+  '/courts/$slug/book': typeof CourtsSlugBookRoute
+  '/courts/$slug/confirm': typeof CourtsSlugConfirmRoute
+  '/dashboard/courts/$id': typeof DashboardCourtsIdRoute
+  '/courts/$slug/': typeof CourtsSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/api/remy-chat': typeof ApiRemyChatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/speakers/$slug': typeof SpeakersSlugRoute
-  '/talks/$slug': typeof TalksSlugRoute
-  '/schedule': typeof ScheduleIndexRoute
-  '/speakers': typeof SpeakersIndexRoute
-  '/talks': typeof TalksIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/v2': typeof V2Route
+  '/v3': typeof V3Route
+  '/v4': typeof V4Route
+  '/v5': typeof V5Route
+  '/v6': typeof V6Route
+  '/v7': typeof V7Route
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/courts': typeof AdminCourtsRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/admin/courts/new': typeof AdminCourtsNewRoute
+  '/courts/$slug/book': typeof CourtsSlugBookRoute
+  '/courts/$slug/confirm': typeof CourtsSlugConfirmRoute
+  '/dashboard/courts/$id': typeof DashboardCourtsIdRoute
+  '/courts/$slug': typeof CourtsSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/api/remy-chat': typeof ApiRemyChatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/speakers/$slug': typeof SpeakersSlugRoute
-  '/talks/$slug': typeof TalksSlugRoute
-  '/schedule/': typeof ScheduleIndexRoute
-  '/speakers/': typeof SpeakersIndexRoute
-  '/talks/': typeof TalksIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/v2': typeof V2Route
+  '/v3': typeof V3Route
+  '/v4': typeof V4Route
+  '/v5': typeof V5Route
+  '/v6': typeof V6Route
+  '/v7': typeof V7Route
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/courts': typeof AdminCourtsRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/courts/$slug': typeof CourtsSlugRouteWithChildren
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/admin/courts/new': typeof AdminCourtsNewRoute
+  '/courts/$slug/book': typeof CourtsSlugBookRoute
+  '/courts/$slug/confirm': typeof CourtsSlugConfirmRoute
+  '/dashboard/courts/$id': typeof DashboardCourtsIdRoute
+  '/courts/$slug/': typeof CourtsSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/api/remy-chat'
-    | '/demo/tanstack-query'
-    | '/speakers/$slug'
-    | '/talks/$slug'
-    | '/schedule/'
-    | '/speakers/'
-    | '/talks/'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/admin'
+    | '/dashboard'
+    | '/v2'
+    | '/v3'
+    | '/v4'
+    | '/v5'
+    | '/v6'
+    | '/v7'
+    | '/admin/bookings'
+    | '/admin/courts'
+    | '/admin/login'
+    | '/courts/$slug'
+    | '/dashboard/bookings'
+    | '/dashboard/login'
+    | '/admin/'
+    | '/dashboard/'
+    | '/admin/courts/new'
+    | '/courts/$slug/book'
+    | '/courts/$slug/confirm'
+    | '/dashboard/courts/$id'
+    | '/courts/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/api/remy-chat'
-    | '/demo/tanstack-query'
-    | '/speakers/$slug'
-    | '/talks/$slug'
-    | '/schedule'
-    | '/speakers'
-    | '/talks'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/v2'
+    | '/v3'
+    | '/v4'
+    | '/v5'
+    | '/v6'
+    | '/v7'
+    | '/admin/bookings'
+    | '/admin/courts'
+    | '/admin/login'
+    | '/dashboard/bookings'
+    | '/dashboard/login'
+    | '/admin'
+    | '/dashboard'
+    | '/admin/courts/new'
+    | '/courts/$slug/book'
+    | '/courts/$slug/confirm'
+    | '/dashboard/courts/$id'
+    | '/courts/$slug'
   id:
     | '__root__'
     | '/'
-    | '/about'
-    | '/api/remy-chat'
-    | '/demo/tanstack-query'
-    | '/speakers/$slug'
-    | '/talks/$slug'
-    | '/schedule/'
-    | '/speakers/'
-    | '/talks/'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/admin'
+    | '/dashboard'
+    | '/v2'
+    | '/v3'
+    | '/v4'
+    | '/v5'
+    | '/v6'
+    | '/v7'
+    | '/admin/bookings'
+    | '/admin/courts'
+    | '/admin/login'
+    | '/courts/$slug'
+    | '/dashboard/bookings'
+    | '/dashboard/login'
+    | '/admin/'
+    | '/dashboard/'
+    | '/admin/courts/new'
+    | '/courts/$slug/book'
+    | '/courts/$slug/confirm'
+    | '/dashboard/courts/$id'
+    | '/courts/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  ApiRemyChatRoute: typeof ApiRemyChatRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  SpeakersSlugRoute: typeof SpeakersSlugRoute
-  TalksSlugRoute: typeof TalksSlugRoute
-  ScheduleIndexRoute: typeof ScheduleIndexRoute
-  SpeakersIndexRoute: typeof SpeakersIndexRoute
-  TalksIndexRoute: typeof TalksIndexRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  DashboardRoute: typeof DashboardRouteWithChildren
+  V2Route: typeof V2Route
+  V3Route: typeof V3Route
+  V4Route: typeof V4Route
+  V5Route: typeof V5Route
+  V6Route: typeof V6Route
+  V7Route: typeof V7Route
+  CourtsSlugRoute: typeof CourtsSlugRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/v7': {
+      id: '/v7'
+      path: '/v7'
+      fullPath: '/v7'
+      preLoaderRoute: typeof V7RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v6': {
+      id: '/v6'
+      path: '/v6'
+      fullPath: '/v6'
+      preLoaderRoute: typeof V6RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v5': {
+      id: '/v5'
+      path: '/v5'
+      fullPath: '/v5'
+      preLoaderRoute: typeof V5RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v4': {
+      id: '/v4'
+      path: '/v4'
+      fullPath: '/v4'
+      preLoaderRoute: typeof V4RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v3': {
+      id: '/v3'
+      path: '/v3'
+      fullPath: '/v3'
+      preLoaderRoute: typeof V3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v2': {
+      id: '/v2'
+      path: '/v2'
+      fullPath: '/v2'
+      preLoaderRoute: typeof V2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -189,84 +363,173 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/talks/': {
-      id: '/talks/'
-      path: '/talks'
-      fullPath: '/talks/'
-      preLoaderRoute: typeof TalksIndexRouteImport
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/dashboard/login': {
+      id: '/dashboard/login'
+      path: '/login'
+      fullPath: '/dashboard/login'
+      preLoaderRoute: typeof DashboardLoginRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/bookings': {
+      id: '/dashboard/bookings'
+      path: '/bookings'
+      fullPath: '/dashboard/bookings'
+      preLoaderRoute: typeof DashboardBookingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/courts/$slug': {
+      id: '/courts/$slug'
+      path: '/courts/$slug'
+      fullPath: '/courts/$slug'
+      preLoaderRoute: typeof CourtsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/speakers/': {
-      id: '/speakers/'
-      path: '/speakers'
-      fullPath: '/speakers/'
-      preLoaderRoute: typeof SpeakersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/schedule/': {
-      id: '/schedule/'
-      path: '/schedule'
-      fullPath: '/schedule/'
-      preLoaderRoute: typeof ScheduleIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/courts': {
+      id: '/admin/courts'
+      path: '/courts'
+      fullPath: '/admin/courts'
+      preLoaderRoute: typeof AdminCourtsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/talks/$slug': {
-      id: '/talks/$slug'
-      path: '/talks/$slug'
-      fullPath: '/talks/$slug'
-      preLoaderRoute: typeof TalksSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/speakers/$slug': {
-      id: '/speakers/$slug'
-      path: '/speakers/$slug'
-      fullPath: '/speakers/$slug'
-      preLoaderRoute: typeof SpeakersSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/courts/$slug/': {
+      id: '/courts/$slug/'
+      path: '/'
+      fullPath: '/courts/$slug/'
+      preLoaderRoute: typeof CourtsSlugIndexRouteImport
+      parentRoute: typeof CourtsSlugRoute
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dashboard/courts/$id': {
+      id: '/dashboard/courts/$id'
+      path: '/courts/$id'
+      fullPath: '/dashboard/courts/$id'
+      preLoaderRoute: typeof DashboardCourtsIdRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/api/remy-chat': {
-      id: '/api/remy-chat'
-      path: '/api/remy-chat'
-      fullPath: '/api/remy-chat'
-      preLoaderRoute: typeof ApiRemyChatRouteImport
-      parentRoute: typeof rootRouteImport
+    '/courts/$slug/confirm': {
+      id: '/courts/$slug/confirm'
+      path: '/confirm'
+      fullPath: '/courts/$slug/confirm'
+      preLoaderRoute: typeof CourtsSlugConfirmRouteImport
+      parentRoute: typeof CourtsSlugRoute
     }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
+    '/courts/$slug/book': {
+      id: '/courts/$slug/book'
+      path: '/book'
+      fullPath: '/courts/$slug/book'
+      preLoaderRoute: typeof CourtsSlugBookRouteImport
+      parentRoute: typeof CourtsSlugRoute
     }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/courts/new': {
+      id: '/admin/courts/new'
+      path: '/new'
+      fullPath: '/admin/courts/new'
+      preLoaderRoute: typeof AdminCourtsNewRouteImport
+      parentRoute: typeof AdminCourtsRoute
     }
   }
 }
 
+interface AdminCourtsRouteChildren {
+  AdminCourtsNewRoute: typeof AdminCourtsNewRoute
+}
+
+const AdminCourtsRouteChildren: AdminCourtsRouteChildren = {
+  AdminCourtsNewRoute: AdminCourtsNewRoute,
+}
+
+const AdminCourtsRouteWithChildren = AdminCourtsRoute._addFileChildren(
+  AdminCourtsRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminCourtsRoute: typeof AdminCourtsRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminBookingsRoute: AdminBookingsRoute,
+  AdminCourtsRoute: AdminCourtsRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface DashboardRouteChildren {
+  DashboardBookingsRoute: typeof DashboardBookingsRoute
+  DashboardLoginRoute: typeof DashboardLoginRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardCourtsIdRoute: typeof DashboardCourtsIdRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardBookingsRoute: DashboardBookingsRoute,
+  DashboardLoginRoute: DashboardLoginRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardCourtsIdRoute: DashboardCourtsIdRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
+interface CourtsSlugRouteChildren {
+  CourtsSlugBookRoute: typeof CourtsSlugBookRoute
+  CourtsSlugConfirmRoute: typeof CourtsSlugConfirmRoute
+  CourtsSlugIndexRoute: typeof CourtsSlugIndexRoute
+}
+
+const CourtsSlugRouteChildren: CourtsSlugRouteChildren = {
+  CourtsSlugBookRoute: CourtsSlugBookRoute,
+  CourtsSlugConfirmRoute: CourtsSlugConfirmRoute,
+  CourtsSlugIndexRoute: CourtsSlugIndexRoute,
+}
+
+const CourtsSlugRouteWithChildren = CourtsSlugRoute._addFileChildren(
+  CourtsSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  ApiRemyChatRoute: ApiRemyChatRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  SpeakersSlugRoute: SpeakersSlugRoute,
-  TalksSlugRoute: TalksSlugRoute,
-  ScheduleIndexRoute: ScheduleIndexRoute,
-  SpeakersIndexRoute: SpeakersIndexRoute,
-  TalksIndexRoute: TalksIndexRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
+  AdminRoute: AdminRouteWithChildren,
+  DashboardRoute: DashboardRouteWithChildren,
+  V2Route: V2Route,
+  V3Route: V3Route,
+  V4Route: V4Route,
+  V5Route: V5Route,
+  V6Route: V6Route,
+  V7Route: V7Route,
+  CourtsSlugRoute: CourtsSlugRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

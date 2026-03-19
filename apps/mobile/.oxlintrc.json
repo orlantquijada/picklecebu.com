@@ -4,6 +4,7 @@
     "../../node_modules/ultracite/config/oxlint/core/.oxlintrc.json",
     "../../node_modules/ultracite/config/oxlint/react/.oxlintrc.json"
   ],
+  "ignorePatterns": ["node_modules/**", "dist/**", "build/**", ".expo/**", "web-build/**"],
   "overrides": [
     {
       "files": ["scripts/**"],

@@ -4,8 +4,20 @@
     "../../node_modules/ultracite/config/oxlint/core/.oxlintrc.json",
     "../../node_modules/ultracite/config/oxlint/react/.oxlintrc.json"
   ],
-  "ignorePatterns": [".content-collections/**"],
+  "ignorePatterns": [
+    ".content-collections/**",
+    "node_modules/**",
+    "src/routeTree.gen.ts",
+    "dist/**",
+    "dist-ssr/**",
+    ".tanstack/**",
+    ".nitro/**",
+    ".output/**",
+    ".vinxi/**",
+    ".wrangler/**"
+  ],
   "rules": {
+    "react-perf/jsx-no-new-function-as-prop": "off",
     "unicorn/filename-case": [
       "error",
       { "cases": { "kebabCase": true, "pascalCase": true } }

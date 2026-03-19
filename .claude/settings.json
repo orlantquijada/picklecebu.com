@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": ["Bash(bun:*)"],
+    "deny": [
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx:*)",
+      "Bash(yarn dlx:*)"
+    ]
+  }
+}

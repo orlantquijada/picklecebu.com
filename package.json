@@ -10,13 +10,19 @@
     "react-dom": "19.2.0",
     "@types/react": "^19.2.0",
     "@types/node": "^22.10.2",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "zod": "^4.3.6",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0",
+    "ultracite": "7.3.1"
   },
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "build": "bun run --filter '*' build",
     "typecheck": "bun run --filter '*' typecheck",
-    "lint": "bun run --filter '*' lint"
+    "lint": "bun run --filter '*' lint",
+    "format": "bun run --filter '*' format",
+    "format:unsafe": "bun run --filter '*' format:unsafe"
   },
   "devDependencies": {
     "oxfmt": "^0.41.0",
