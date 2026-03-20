@@ -1,4 +1,13 @@
-import { Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  CircleParking,
+  Lightbulb,
+  ShowerHead,
+  Store,
+  Sun,
+  Umbrella,
+  Warehouse,
+} from "lucide-react";
 
 import type { Venue } from "#/lib/constants";
 import { formatCentavos } from "#/lib/format";
@@ -12,14 +21,14 @@ const VENUE_COLORS = [
   "from-rose-900 to-rose-950",
 ];
 
-const AMENITY_ICONS: Record<string, string> = {
-  Indoor: "🏠",
-  Outdoor: "☀️",
-  Covered: "🏗️",
-  Floodlights: "💡",
-  Parking: "🅿️",
-  Showers: "🚿",
-  "Pro Shop": "🏪",
+const AMENITY_ICONS: Record<string, LucideIcon> = {
+  Indoor: Warehouse,
+  Outdoor: Sun,
+  Covered: Umbrella,
+  Floodlights: Lightbulb,
+  Parking: CircleParking,
+  Showers: ShowerHead,
+  "Pro Shop": Store,
 };
 
 export function VenueCard({
@@ -31,7 +40,7 @@ export function VenueCard({
 }) {
   return (
     <div className="group cursor-pointer">
-      {/* Image area — tall card with overlaid content */}
+      {/* Image area */}
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${VENUE_COLORS[index % VENUE_COLORS.length]}`}
       >
@@ -81,53 +90,45 @@ export function VenueCard({
           <circle cx="150" cy="200" r="8" stroke="white" strokeWidth="1.5" fill="none" />
         </svg>
 
+        {/* Badge — top left */}
+        {venue.badge && (
+          <div className="absolute left-3 top-3 z-10">
+            <span className="rounded-md bg-lime px-2 py-1 text-xs font-bold uppercase tracking-wide text-lime-foreground">
+              {venue.badge}
+            </span>
+          </div>
+        )}
+
         {/* Price badge — top right */}
         <div className="absolute right-3 top-3 z-10">
-          <span className="rounded-lg bg-lime px-2.5 py-1.5 text-sm font-bold text-lime-foreground shadow-md">
+          <span className="rounded-md bg-lime px-2 py-1 text-sm font-bold text-lime-foreground">
             {formatCentavos(venue.pricePerHourCentavos)}
-            <span className="text-xs font-medium">/HR</span>
+            <span className="text-xs font-medium">/hr</span>
           </span>
-        </div>
-
-        {/* Bottom gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        {/* Overlaid text — bottom */}
-        <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-          {venue.badge && (
-            <div className="mb-2 flex items-center gap-1.5">
-              <Zap className="size-3.5 fill-lime text-lime" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-lime">
-                {venue.badge}
-              </span>
-            </div>
-          )}
-          <h3 className="text-xl font-bold tracking-tight text-white">
-            {venue.name}
-          </h3>
         </div>
       </div>
 
-      {/* Metadata below card */}
-      <div className="mt-3 flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {venue.area}, Cebu
-          </p>
-          <p className="mt-0.5 text-sm text-foreground">
-            {venue.description}
-          </p>
-        </div>
-        <div className="flex shrink-0 gap-1.5 pt-0.5">
-          {venue.amenities.slice(0, 2).map((amenity) => (
-            <span
-              key={amenity}
-              className="text-base text-muted-foreground"
-              title={amenity}
-            >
-              {AMENITY_ICONS[amenity] ?? "·"}
-            </span>
-          ))}
+      {/* Details below image */}
+      <div className="mt-3 space-y-1">
+        <h3 className="text-lg font-bold tracking-tight">{venue.name}</h3>
+        <p className="text-sm text-muted-foreground">
+          {venue.area}, Cebu · {venue.courtCount}{" "}
+          {venue.courtCount === 1 ? "Court" : "Courts"}
+        </p>
+        <div className="flex gap-3 pt-1">
+          {venue.amenities.slice(0, 3).map((amenity) => {
+            const Icon = AMENITY_ICONS[amenity];
+            if (!Icon) return null;
+            return (
+              <span
+                key={amenity}
+                className="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <Icon className="size-3.5" />
+                {amenity}
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
