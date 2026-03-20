@@ -7,8 +7,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import Footer from "../components/layout/Footer";
-import Header from "../components/layout/Header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 
@@ -23,12 +21,10 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
     <head>
       <HeadContent />
     </head>
-    <body className="font-sans antialiased [overflow-wrap:anywhere]">
+    <body className="font-sans antialiased wrap-anywhere">
       <TanStackQueryProvider>
         <div className="flex min-h-screen flex-col">
-          <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
         </div>
         <TanStackDevtools
           config={{ position: "bottom-right" }}
