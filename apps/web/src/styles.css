@@ -1,8 +1,46 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+
+  --color-background: #faf9f7;
+  --color-foreground: #1c1c1c;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #1c1c1c;
+
+  --color-primary: #1c1c1c;
+  --color-primary-foreground: #faf9f7;
+
+  --color-secondary: #f0efeb;
+  --color-secondary-foreground: #1c1c1c;
+
+  --color-muted: #f0efeb;
+  --color-muted-foreground: #6b6b60;
+
+  --color-accent: #ccff00;
+  --color-accent-foreground: #1c1c1c;
+
+  --color-destructive: #ef4444;
+
+  --color-border: #e5e4e0;
+  --color-input: #e5e4e0;
+  --color-ring: #1c1c1c;
+
+  --color-surface-dark: #1c1c1c;
+  --color-surface-dark-foreground: #faf9f7;
+
+  --color-lime: #ccff00;
+  --color-lime-foreground: #1c1c1c;
+
+  --radius: 0.625rem;
+}
+
 body {
-  @apply m-0;
+  @apply m-0 bg-background text-foreground;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

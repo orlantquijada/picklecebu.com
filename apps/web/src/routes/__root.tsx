@@ -44,7 +44,19 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
-    links: [{ href: appCss, rel: "stylesheet" }],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap",
+      },
+      { href: appCss, rel: "stylesheet" },
+    ],
     meta: [
       { charSet: "utf8" },
       { content: "width=device-width, initial-scale=1", name: "viewport" },
