@@ -1,16 +1,8 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  CircleParking,
-  Lightbulb,
-  ShowerHead,
-  Store,
-  Sun,
-  Umbrella,
-  Warehouse,
-} from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import type { Venue } from "#/lib/constants";
 import { formatCentavos } from "#/lib/format";
+import { AMENITY_ICONS } from "#/lib/amenity-icons";
 
 const VENUE_COLORS = [
   "from-emerald-900 to-emerald-950",
@@ -21,16 +13,6 @@ const VENUE_COLORS = [
   "from-rose-900 to-rose-950",
 ];
 
-const AMENITY_ICONS: Record<string, LucideIcon> = {
-  Indoor: Warehouse,
-  Outdoor: Sun,
-  Covered: Umbrella,
-  Floodlights: Lightbulb,
-  Parking: CircleParking,
-  Showers: ShowerHead,
-  "Pro Shop": Store,
-};
-
 export function VenueCard({
   venue,
   index,
@@ -39,7 +21,11 @@ export function VenueCard({
   index: number;
 }) {
   return (
-    <div className="group cursor-pointer">
+    <Link
+      to="/venues/$slug"
+      params={{ slug: venue.slug }}
+      className="group block"
+    >
       {/* Image area */}
       <div
         className={`relative aspect-[3/4] overflow-hidden rounded-xl bg-gradient-to-br ${VENUE_COLORS[index % VENUE_COLORS.length]}`}
@@ -131,6 +117,6 @@ export function VenueCard({
           })}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
