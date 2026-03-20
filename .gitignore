@@ -40,3 +40,5 @@ yarn-error.log*
 # bun
 bun.lockb
 bun.lock
+.vercel
+.env*.local
