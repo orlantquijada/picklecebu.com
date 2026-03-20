@@ -6,10 +6,10 @@ import { QUICK_PICKS } from "#/lib/constants";
 import { BookingBar } from "./booking-bar";
 
 const TRUST_CHIPS = [
-  "No account needed",
-  "Instant booking",
+  "No signup",
+  "Instant confirmation",
   "GCash & Maya",
-  "Cebu courts only",
+  "Cebu only",
 ];
 
 export function Hero() {
@@ -63,14 +63,14 @@ export function Hero() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground italic">
-            Cebu&rsquo;s court booking platform
+            Pickleball courts in Cebu
           </p>
           <h1 className="mb-4 text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Book a pickleball court in&nbsp;Cebu.
+            Find and book a pickleball court in&nbsp;Cebu.
           </h1>
           <p className="mx-auto mb-10 max-w-xl text-base text-muted-foreground md:text-lg">
-            See real-time availability, book instantly with GCash or Maya, and
-            play today. No account needed.
+            Live availability. Instant confirmation. Pay with GCash or Maya.
+            No signup.
           </p>
         </div>
 

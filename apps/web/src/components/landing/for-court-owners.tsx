@@ -5,11 +5,11 @@ import { Button } from "#/components/ui/button";
 const OWNER_BENEFITS = [
   {
     icon: Users,
-    text: "Reach more Cebu players",
+    text: "Reach Cebu players actively looking",
   },
   {
     icon: Calendar,
-    text: "Simple availability management",
+    text: "Easy availability management",
   },
   {
     icon: BarChart3,
@@ -17,7 +17,7 @@ const OWNER_BENEFITS = [
   },
   {
     icon: Zap,
-    text: "Automated booking intake",
+    text: "Bookings handled automatically",
   },
 ];
 
@@ -37,8 +37,8 @@ export function ForCourtOwners() {
               Own a pickleball court in&nbsp;Cebu?
             </h2>
             <p className="mb-8 text-base text-surface-dark-foreground/70">
-              List your venue on PickleCebu and start getting bookings from local
-              players. No setup fees, no long-term contracts.
+              List your venue and fill your available hours. No setup fees. No
+              contracts.
             </p>
 
             <ul className="space-y-4">
@@ -58,8 +58,7 @@ export function ForCourtOwners() {
 
           <div className="flex flex-col items-start gap-4 md:items-center md:text-center">
             <p className="text-lg font-medium text-surface-dark-foreground/80">
-              Get your courts in front of Cebu&rsquo;s growing pickleball
-              community.
+              Your courts, visible to every pickleball player in Cebu.
             </p>
             <Button
               size="lg"

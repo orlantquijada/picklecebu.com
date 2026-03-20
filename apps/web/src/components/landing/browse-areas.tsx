@@ -5,7 +5,7 @@ export function BrowseAreas() {
     <section id="browse" className="py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="mb-6 text-xs font-semibold uppercase tracking-widest text-muted-foreground italic">
-          Trending areas
+          Browse by area
         </p>
 
         <div className="flex gap-2 overflow-x-auto pb-2 md:flex-wrap md:overflow-x-visible md:pb-0">

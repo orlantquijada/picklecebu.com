@@ -9,7 +9,7 @@ export function FeaturedVenues() {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground italic">
-              Elite selection
+              Top venues
             </p>
             <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
               Featured Venues
@@ -19,7 +19,7 @@ export function FeaturedVenues() {
             href="#browse"
             className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
           >
-            VIEW ALL DESTINATIONS →
+            See all venues →
           </a>
         </div>
 

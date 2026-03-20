@@ -85,13 +85,13 @@ export function BookingBar() {
           {/* Search button — flush bottom */}
           <Button className="h-14 w-full gap-2 rounded-none bg-lime text-base font-semibold text-lime-foreground hover:bg-lime/90">
             <Search className="size-5" />
-            <span>Search Courts</span>
+            <span>Find Courts</span>
           </Button>
         </div>
 
         {/* Desktop layout — single horizontal row */}
         <div className="hidden md:flex md:items-stretch">
-          <div className="group flex flex-1 cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50">
+          <div className="group flex flex-[2] cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50">
             <MapPin className="size-5 shrink-0 text-muted-foreground" />
             <div className="min-w-0">
               <div className="text-xs font-medium text-muted-foreground">
@@ -118,10 +118,12 @@ export function BookingBar() {
               <div className="truncate text-sm font-medium">Any time</div>
             </div>
           </div>
-          <Button className="h-auto gap-2 rounded-none bg-lime px-8 text-base font-semibold text-lime-foreground hover:bg-lime/90">
-            <Search className="size-5" />
-            <span>Search Courts</span>
-          </Button>
+          <div className="flex items-center px-3">
+            <Button className="h-11 gap-2 rounded-xl bg-lime px-6 text-base font-semibold text-lime-foreground hover:bg-lime/90">
+              <Search className="size-5" />
+              <span>Find Courts</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -3,8 +3,6 @@ import {
   CalendarCheck,
   CreditCard,
   MapPin,
-  Timer,
-  UserX,
   Wallet,
   Zap,
 } from "lucide-react";
@@ -65,7 +63,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "baseline-pickle-club",
     name: "Baseline Pickle Club",
     area: "IT Park",
-    description: "4 Pro-grade Indoor Courts",
+    description: "4 indoor courts",
     pricePerHourCentavos: 35000,
     amenities: ["Indoor", "Parking", "Pro Shop"],
     courtCount: 4,
@@ -75,7 +73,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "cebu-pickle-arena",
     name: "Cebu Pickle Arena",
     area: "SRP",
-    description: "6 Championship Indoor Courts",
+    description: "6 indoor courts",
     pricePerHourCentavos: 40000,
     amenities: ["Indoor", "Showers", "Parking"],
     courtCount: 6,
@@ -85,7 +83,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "smash-court-lahug",
     name: "Smash Court Lahug",
     area: "Lahug",
-    description: "3 Covered Floodlit Courts",
+    description: "3 covered courts",
     pricePerHourCentavos: 30000,
     amenities: ["Covered", "Floodlights", "Parking"],
     courtCount: 3,
@@ -94,7 +92,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "net-rush-mandaue",
     name: "Net Rush Mandaue",
     area: "Mandaue",
-    description: "2 Outdoor Night Courts",
+    description: "2 outdoor courts",
     pricePerHourCentavos: 28000,
     amenities: ["Outdoor", "Floodlights"],
     courtCount: 2,
@@ -103,7 +101,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "volley-hub-banilad",
     name: "Volley Hub Banilad",
     area: "Banilad",
-    description: "5 Premium Indoor Courts",
+    description: "5 indoor courts",
     pricePerHourCentavos: 45000,
     amenities: ["Indoor", "Showers", "Pro Shop"],
     courtCount: 5,
@@ -113,7 +111,7 @@ export const FEATURED_VENUES: Venue[] = [
     slug: "island-pickle-mactan",
     name: "Island Pickle Mactan",
     area: "Mactan",
-    description: "3 Covered Beachside Courts",
+    description: "3 covered courts",
     pricePerHourCentavos: 32000,
     amenities: ["Outdoor", "Covered", "Parking"],
     courtCount: 3,
@@ -122,37 +120,29 @@ export const FEATURED_VENUES: Venue[] = [
 
 export const ADVANTAGES: Advantage[] = [
   {
-    icon: UserX,
-    title: "No account needed",
-    description: "Book your first court without signing up.",
-  },
-  {
-    icon: Timer,
-    title: "Book in under a minute",
-    description: "Pick a court, choose a time, and confirm instantly.",
+    icon: Zap,
+    title: "Book in seconds",
+    description:
+      "No signup needed. Pick a court, choose a time, confirm instantly.",
   },
   {
     icon: Wallet,
     title: "GCash & Maya",
-    description: "Pay with the e-wallets you already use.",
-  },
-  {
-    icon: Zap,
-    title: "Instant confirmation",
-    description: "Your booking is confirmed the moment you pay.",
+    description: "Pay with the e-wallets you already use. No cash, no hassle.",
   },
   {
     icon: MapPin,
-    title: "Cebu courts only",
-    description: "Built for Cebu players. Every court is local.",
+    title: "Made for Cebu",
+    description:
+      "Every court is local. Built by and for Cebu's pickleball community.",
   },
 ];
 
 export const STEPS: Step[] = [
   {
     number: 1,
-    title: "Choose your area",
-    description: "Browse courts by neighborhood or search by name.",
+    title: "Pick an area",
+    description: "Browse courts by area or search by venue name.",
     icon: MapPin,
   },
   {
@@ -172,14 +162,14 @@ export const STEPS: Step[] = [
 export const NAV_LINKS = [
   { label: "Browse Courts", href: "#browse" },
   { label: "How It Works", href: "#how-it-works" },
-  { label: "For Court Owners", href: "#for-owners" },
+  { label: "List Your Court", href: "#for-owners" },
 ];
 
 export const QUICK_PICKS = [
   { label: "Tonight" },
   { label: "Tomorrow" },
-  { label: "This weekend" },
-  { label: "Indoor only" },
+  { label: "Weekend" },
+  { label: "Indoor" },
   { label: "Under ₱400" },
 ];
 
