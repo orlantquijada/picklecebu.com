@@ -1,7 +1,9 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 
 import { Badge } from "#/components/ui/badge";
 import { QUICK_PICKS } from "#/lib/constants";
+import { applyQuickPick, getDefaults } from "#/lib/search-params";
 
 import { BookingBar } from "./booking-bar";
 
@@ -13,6 +15,13 @@ const TRUST_CHIPS = [
 ];
 
 export function Hero() {
+  const navigate = useNavigate();
+
+  function handleQuickPick(label: string) {
+    const params = applyQuickPick(getDefaults(), label);
+    navigate({ to: "/search", search: params });
+  }
+
   return (
     <section
       id="hero"
@@ -96,6 +105,7 @@ export function Hero() {
             <button
               key={pick.label}
               type="button"
+              onClick={() => handleQuickPick(pick.label)}
               className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-lime hover:bg-lime/10 hover:text-foreground"
             >
               {pick.label}

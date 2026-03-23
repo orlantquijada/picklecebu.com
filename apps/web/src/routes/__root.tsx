@@ -23,9 +23,7 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
     </head>
     <body className="font-sans antialiased wrap-anywhere">
       <TanStackQueryProvider>
-        <div className="flex min-h-screen flex-col">
-          <main className="flex-1">{children}</main>
-        </div>
+        {children}
         <TanStackDevtools
           config={{ position: "bottom-right" }}
           plugins={[

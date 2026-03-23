@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 
-import { Header } from "#/components/landing/header";
-import { Footer } from "#/components/landing/footer";
 import { PhotoGallery } from "#/components/venue/photo-gallery";
 import { VenueHeader } from "#/components/venue/venue-header";
 import {
@@ -16,15 +15,20 @@ import { LocationSection } from "#/components/venue/location-section";
 import { RulesSection } from "#/components/venue/rules-section";
 import { VENUE_DETAILS } from "#/lib/constants";
 
+const venueSearchSchema = z.object({
+  date: z.string().optional(),
+  start: z.string().optional(),
+  duration: z.string().optional(),
+});
+
 function VenueDetailPage() {
   const { slug } = Route.useParams();
+  const search = Route.useSearch();
   const venue = VENUE_DETAILS[slug];
 
   if (!venue) {
     return (
-      <>
-        <Header />
-        <div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold">Venue not found</h1>
           <p className="mt-2 text-muted-foreground">
             The venue you're looking for doesn't exist.
@@ -33,14 +37,11 @@ function VenueDetailPage() {
             Back to home
           </a>
         </div>
-        <Footer />
-      </>
     );
   }
 
   return (
     <>
-      <Header />
       <div className="mx-auto max-w-7xl px-4 pt-6 pb-20 sm:px-6 lg:px-8 lg:pb-16">
         {/* Photo gallery */}
         <PhotoGallery />
@@ -64,16 +65,16 @@ function VenueDetailPage() {
 
           {/* Right column — sticky booking sidebar, starts at venue header level */}
           <div className="hidden lg:block">
-            <BookingSidebar venue={venue} />
+            <BookingSidebar venue={venue} booking={search} />
           </div>
         </div>
       </div>
       <MobileBookingBar venue={venue} />
-      <Footer />
     </>
   );
 }
 
-export const Route = createFileRoute("/venues/$slug")({
+export const Route = createFileRoute("/_layout/venues/$slug")({
   component: VenueDetailPage,
+  validateSearch: (search) => venueSearchSchema.parse(search),
 });

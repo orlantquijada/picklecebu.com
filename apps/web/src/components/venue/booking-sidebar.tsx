@@ -1,8 +1,25 @@
 import { Button } from "#/components/ui/button";
 import type { VenueDetail } from "#/lib/constants";
-import { formatCentavos } from "#/lib/format";
+import { formatCentavos, formatHour } from "#/lib/format";
+import { formatDateLabel } from "#/lib/search-params";
 
-export function BookingSidebar({ venue }: { venue: VenueDetail }) {
+type BookingParams = {
+  date?: string;
+  start?: string;
+  duration?: string;
+};
+
+export function BookingSidebar({
+  venue,
+  booking,
+}: {
+  venue: VenueDetail;
+  booking?: BookingParams;
+}) {
+  const hasDate = !!booking?.date;
+  const hasTime = !!booking?.start;
+  const durationHrs = booking?.duration ? Number(booking.duration) / 60 : 1;
+
   return (
     <div className="sticky top-20 rounded-xl border bg-card p-6 shadow-lg">
       {/* Price — large and prominent */}
@@ -19,26 +36,30 @@ export function BookingSidebar({ venue }: { venue: VenueDetail }) {
           <p className="text-[10px] font-semibold uppercase tracking-wide">
             Date
           </p>
-          <p className="text-sm">Add date</p>
+          <p className="text-sm">
+            {hasDate ? formatDateLabel(booking.date!) : "Add date"}
+          </p>
         </div>
         <div className="px-3 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-wide">
             Time
           </p>
-          <p className="text-sm">Add time</p>
+          <p className="text-sm">
+            {hasTime ? formatHour(Number(booking.start!)) : "Add time"}
+          </p>
         </div>
         <div className="col-span-2 border-t px-3 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-wide">
-            Players
+            Duration
           </p>
           <p className="text-sm">
-            {venue.maxGuests} {venue.maxGuests === 1 ? "player" : "players"} max
+            {durationHrs} {durationHrs === 1 ? "hour" : "hours"}
           </p>
         </div>
       </div>
 
       <Button className="mt-4 w-full bg-lime text-lime-foreground hover:bg-lime/90">
-        Check availability
+        {hasDate && hasTime ? "Book now" : "Check availability"}
       </Button>
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
