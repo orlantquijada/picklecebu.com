@@ -1,8 +1,14 @@
 import { MapPin, Share2 } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "#/components/ui/tooltip";
 import type { VenueDetail } from "#/lib/constants";
 import { formatCentavos } from "#/lib/format";
+import { copyCurrentUrl } from "#/lib/share";
 
 export function VenueHeader({ venue }: { venue: VenueDetail }) {
   return (
@@ -29,9 +35,19 @@ export function VenueHeader({ venue }: { venue: VenueDetail }) {
           <span>{formatCentavos(venue.pricePerHourCentavos)}/hr</span>
         </div>
       </div>
-      <Button variant="outline" size="icon" className="shrink-0">
-        <Share2 className="size-4" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0"
+            onClick={() => copyCurrentUrl("Share this venue with friends.")}
+          >
+            <Share2 className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Copy link</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

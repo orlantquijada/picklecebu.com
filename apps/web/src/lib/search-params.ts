@@ -1,9 +1,25 @@
+import {
+  addDays,
+  format,
+  isSaturday,
+  isSunday,
+  isToday,
+  isTomorrow,
+  nextSaturday,
+} from "date-fns";
 import { z } from "zod";
+import { formatHour } from "./format";
 
-const today = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
+const toDateStr = (d: Date) => format(d, "yyyy-MM-dd");
+const todayStr = () => toDateStr(new Date());
+
+export const amenityEnum = z.enum([
+  "floodlights",
+  "parking",
+  "showers",
+  "pro-shop",
+]);
+export type AmenitySlug = z.infer<typeof amenityEnum>;
 
 export const searchParamsSchema = z.object({
   where: z.string().default("cebu-city"),
@@ -13,23 +29,43 @@ export const searchParamsSchema = z.object({
   duration: z.coerce.number().default(60),
   priceMax: z.coerce.number().optional(),
   sort: z.enum(["best", "price", "earliest"]).default("best"),
+  weekend: z.coerce.boolean().default(false),
+  amenities: z
+    .preprocess(
+      (v) => (Array.isArray(v) ? v : v ? [v] : []),
+      z.array(amenityEnum),
+    )
+    .optional(),
 });
 
 export type SearchParams = z.infer<typeof searchParamsSchema>;
 
+export function getFilterCount(params: Pick<SearchParams, "priceMax" | "amenities">): number {
+  return (params.priceMax != null ? 1 : 0) + (params.amenities?.length ?? 0);
+}
+
 export function getDefaults(): SearchParams {
   return {
     where: "cebu-city",
-    date: today(),
+    date: todayStr(),
     time: "any",
     courtType: "any",
     duration: 60,
     sort: "best",
+    weekend: false,
   };
 }
 
 export function resolveDate(params: SearchParams): string {
-  return params.date || today();
+  return params.date || todayStr();
+}
+
+/** Returns [saturday, sunday] date strings for the upcoming weekend */
+export function getWeekendDates(): [string, string] {
+  const now = new Date();
+  const sat = isSaturday(now) ? now : isSunday(now) ? addDays(now, -1) : nextSaturday(now);
+  const sun = addDays(sat, 1);
+  return [toDateStr(sat), toDateStr(sun)];
 }
 
 export function applyQuickPick(
@@ -37,31 +73,68 @@ export function applyQuickPick(
   pick: string,
 ): SearchParams {
   const now = new Date();
-  const todayStr = today();
+
+  const isWeekend = isSaturday(now) || isSunday(now);
 
   switch (pick) {
     case "Tonight":
-      return { ...current, date: todayStr, time: "18:00" };
-    case "Tomorrow": {
-      const tom = new Date(now);
-      tom.setDate(tom.getDate() + 1);
-      const d = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, "0")}-${String(tom.getDate()).padStart(2, "0")}`;
-      return { ...current, date: d, time: "any" };
-    }
-    case "Weekend": {
-      const day = now.getDay(); // 0=Sun
-      const daysUntilSat = day === 6 ? 0 : day === 0 ? 0 : 6 - day;
-      const sat = new Date(now);
-      sat.setDate(sat.getDate() + daysUntilSat);
-      const d = `${sat.getFullYear()}-${String(sat.getMonth() + 1).padStart(2, "0")}-${String(sat.getDate()).padStart(2, "0")}`;
-      return { ...current, date: d, time: "any" };
-    }
+      return {
+        ...current,
+        date: todayStr(),
+        time: "18:00",
+        // Tonight on a weekday is incompatible with weekend filter
+        ...(isWeekend ? {} : { weekend: false }),
+      };
+    case "Tomorrow":
+      return { ...current, date: toDateStr(addDays(now, 1)), time: "any" };
+    case "Weekend":
+      return {
+        ...current,
+        weekend: true,
+        time: "any",
+        // On a weekday, clear tonight's specific date since weekend overrides it
+        ...(isWeekend ? {} : { date: "" }),
+      };
     case "Indoor":
       return { ...current, courtType: "indoor" };
     case "Under ₱400":
       return { ...current, priceMax: 400 };
     default:
       return current;
+  }
+}
+
+export function isQuickPickActive(params: SearchParams, label: string): boolean {
+  switch (label) {
+    case "Tonight":
+      return params.date === todayStr() && params.time === "18:00";
+    case "Tomorrow":
+      return params.date === toDateStr(addDays(new Date(), 1));
+    case "Weekend":
+      return params.weekend === true;
+    case "Indoor":
+      return params.courtType === "indoor";
+    case "Under ₱400":
+      return params.priceMax === 400;
+    default:
+      return false;
+  }
+}
+
+export function removeQuickPick(params: SearchParams, label: string): SearchParams {
+  switch (label) {
+    case "Tonight":
+    case "Tomorrow":
+    case "Weekend":
+      return { ...params, weekend: false, date: todayStr(), time: "any" };
+    case "Indoor":
+      return { ...params, courtType: "any" };
+    case "Under ₱400": {
+      const { priceMax: _, ...rest } = params;
+      return { ...rest } as SearchParams;
+    }
+    default:
+      return params;
   }
 }
 
@@ -82,20 +155,13 @@ export function areaSlugToName(slug: string): string {
 
 export function formatTimeLabel(time: string): string {
   if (time === "any") return "Any time";
-  const [h] = time.split(":");
-  const hour = Number(h);
-  const period = hour >= 12 ? "PM" : "AM";
-  const display = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${display}:00 ${period}`;
+  const hour = Number(time.split(":")[0]);
+  return formatHour(hour);
 }
 
 export function formatDateLabel(dateStr: string): string {
-  const todayStr = today();
-  if (dateStr === todayStr) return "Today";
-  const tom = new Date();
-  tom.setDate(tom.getDate() + 1);
-  const tomStr = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, "0")}-${String(tom.getDate()).padStart(2, "0")}`;
-  if (dateStr === tomStr) return "Tomorrow";
   const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" });
+  if (isToday(d)) return "Today";
+  if (isTomorrow(d)) return "Tomorrow";
+  return format(d, "EEE, MMM d");
 }

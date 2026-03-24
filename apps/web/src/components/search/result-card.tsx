@@ -12,6 +12,39 @@ type ResultCardProps = {
   duration: number;
 };
 
+export function ResultCardSkeleton() {
+  return (
+    <div className="rounded-2xl border border-border bg-white p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 space-y-2">
+          <div className="h-5 w-48 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="shrink-0 space-y-1 text-right">
+          <div className="ml-auto h-5 w-16 animate-pulse rounded bg-muted" />
+          <div className="ml-auto h-3 w-10 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
+      <div className="mt-3 flex gap-1.5">
+        <div className="h-5 w-14 animate-pulse rounded-full bg-muted" />
+        <div className="h-5 w-12 animate-pulse rounded-full bg-muted" />
+        <div className="h-5 w-10 animate-pulse rounded-full bg-muted" />
+      </div>
+      <div className="mt-3 flex gap-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-8 w-16 animate-pulse rounded-lg bg-muted"
+          />
+        ))}
+      </div>
+      <div className="mt-3 flex justify-end">
+        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+      </div>
+    </div>
+  );
+}
+
 export function ResultCard({ result, date, duration }: ResultCardProps) {
   const { venue, matchingSlots, courtTypes } = result;
   const priceLabel =

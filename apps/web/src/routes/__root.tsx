@@ -9,6 +9,8 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
+import { Toaster } from "../components/ui/sonner";
+import { TooltipProvider } from "../components/ui/tooltip";
 
 import appCss from "../styles.css?url";
 
@@ -23,7 +25,10 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
     </head>
     <body className="font-sans antialiased wrap-anywhere">
       <TanStackQueryProvider>
-        {children}
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
+        <Toaster />
         <TanStackDevtools
           config={{ position: "bottom-right" }}
           plugins={[

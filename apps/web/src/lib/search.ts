@@ -1,7 +1,7 @@
 import type { Venue } from "./constants";
 import { FEATURED_VENUES } from "./constants";
 import type { SearchParams } from "./search-params";
-import { resolveDate } from "./search-params";
+import { getWeekendDates, resolveDate } from "./search-params";
 
 export type TimeSlot = {
   hour: number;
@@ -149,13 +149,26 @@ export function searchVenues(params: SearchParams): SearchResponse {
     return true;
   });
 
-  // Generate availability and filter slots
+  const dates = params.weekend ? getWeekendDates() : [date];
+
+  // Generate availability and filter slots (merge across dates for weekend)
   const results: SearchResult[] = filtered.map((venue) => {
-    const allSlots = generateSlots(venue.slug, date);
-    const matching = filterSlotsByTime(allSlots, params.time, params.duration);
+    const allMatching: TimeSlot[] = [];
+    for (const d of dates) {
+      const allSlots = generateSlots(venue.slug, d);
+      const matching = filterSlotsByTime(allSlots, params.time, params.duration);
+      allMatching.push(...matching);
+    }
+    // Dedupe by hour (keep first occurrence)
+    const seen = new Set<number>();
+    const unique = allMatching.filter((s) => {
+      if (seen.has(s.hour)) return false;
+      seen.add(s.hour);
+      return true;
+    });
     return {
       venue,
-      matchingSlots: matching.slice(0, 5),
+      matchingSlots: unique.slice(0, 5),
       courtTypes: getVenueCourtTypes(venue),
     };
   });

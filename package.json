@@ -1,10 +1,10 @@
 {
   "name": "picklecebu.com",
-  "private": true,
-  "packageManager": "bun@1.3.10",
-  "workspaces": [
-    "apps/*"
-  ],
+  "devDependencies": {
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0",
+    "ultracite": "7.3.1"
+  },
   "catalog": {
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -16,6 +16,8 @@
     "oxlint": "^1.56.0",
     "ultracite": "7.3.1"
   },
+  "packageManager": "bun@1.3.10",
+  "private": true,
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "build": "bun run --filter '*' build",
@@ -24,9 +26,7 @@
     "format": "bun run --filter '*' format",
     "format:unsafe": "bun run --filter '*' format:unsafe"
   },
-  "devDependencies": {
-    "oxfmt": "^0.41.0",
-    "oxlint": "^1.56.0",
-    "ultracite": "7.3.1"
-  }
+  "workspaces": [
+    "apps/*"
+  ]
 }

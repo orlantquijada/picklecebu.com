@@ -1,24 +1,162 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  CalendarDays,
-  Clock,
-  MapPin,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
-import { ChevronDown } from "lucide-react";
-import { Select as SelectPrimitive } from "radix-ui";
+import { CalendarDays, Clock, MapPin, Search, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
+import { FiltersButton } from "#/components/search/filters-panel";
 import { Button } from "#/components/ui/button";
+import {
+  SimpleSelect,
+  SimpleSelectContent,
+  SimpleSelectIcon,
+  SimpleSelectTrigger,
+  SimpleSelectValue,
+} from "#/components/ui/simple-select";
 import { AREAS, COURT_TYPES, DURATIONS } from "#/lib/constants";
-import type { SearchParams } from "#/lib/search-params";
+import type { AmenitySlug, SearchParams } from "#/lib/search-params";
 import {
   areaSlugToName,
   formatDateLabel,
   formatTimeLabel,
   getDefaults,
 } from "#/lib/search-params";
+
+const TIME_OPTIONS = [
+  "Any time",
+  "6:00 AM",
+  "7:00 AM",
+  "8:00 AM",
+  "9:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "1:00 PM",
+  "2:00 PM",
+  "3:00 PM",
+  "4:00 PM",
+  "5:00 PM",
+  "6:00 PM",
+  "7:00 PM",
+];
+
+const AREAS_WITH_ALL = [{ name: "All Cebu", slug: "cebu-city" }, ...AREAS];
+
+function parseTimeOption(opt: string): string {
+  if (opt === "Any time") return "any";
+  const match = opt.match(/^(\d+):00\s*(AM|PM)$/);
+  if (!match) return "any";
+  let h = Number(match[1]);
+  if (match[2] === "PM" && h !== 12) h += 12;
+  if (match[2] === "AM" && h === 12) h = 0;
+  return `${String(h).padStart(2, "0")}:00`;
+}
+
+function formatDuration(mins: number): string {
+  return mins === 60 ? "1 hour" : mins === 90 ? "1.5 hours" : "2 hours";
+}
+
+function formatCourtType(type: string): string {
+  return type === "any"
+    ? "Any court"
+    : type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function parseDurationOption(v: string): number {
+  return v.startsWith("1.5") ? 90 : v.startsWith("2") ? 120 : 60;
+}
+
+function parseCourtTypeOption(v: string): SearchParams["courtType"] {
+  return v === "Any court"
+    ? "any"
+    : (v.toLowerCase() as SearchParams["courtType"]);
+}
+
+function useBookingBarState({
+  defaultValues,
+  inline,
+  onSearch,
+}: BookingBarProps) {
+  const navigate = useNavigate();
+  const defaults = { ...getDefaults(), ...defaultValues };
+
+  const [localWhere, setLocalWhere] = useState(defaults.where);
+  const [localDate] = useState(defaults.date);
+  const [localTime, setLocalTime] = useState(defaults.time);
+  const [localCourtType, setLocalCourtType] = useState(defaults.courtType);
+  const [localDuration, setLocalDuration] = useState(defaults.duration);
+  const [localPriceMax, setLocalPriceMax] = useState(defaults.priceMax);
+  const [localAmenities, setLocalAmenities] = useState<AmenitySlug[]>(
+    defaults.amenities ?? []
+  );
+
+  const where = inline ? defaults.where : localWhere;
+  const date = inline ? defaults.date : localDate;
+  const time = inline ? defaults.time : localTime;
+  const courtType = inline ? defaults.courtType : localCourtType;
+  const duration = inline ? defaults.duration : localDuration;
+  const priceMax = inline ? defaults.priceMax : localPriceMax;
+  const amenities = inline ? (defaults.amenities ?? []) : localAmenities;
+
+  function buildParams(overrides?: Partial<SearchParams>): SearchParams {
+    return {
+      courtType: courtType as SearchParams["courtType"],
+      date,
+      duration,
+      sort: defaults.sort,
+      time,
+      where,
+      weekend: defaults.weekend ?? false,
+      priceMax,
+      amenities,
+      ...overrides,
+    };
+  }
+
+  function update(overrides: Partial<SearchParams>) {
+    if (inline) {
+      navigate({
+        replace: true,
+        search: buildParams(overrides),
+        to: "/search",
+      });
+    } else {
+      if ("where" in overrides) setLocalWhere(overrides.where!);
+      if ("time" in overrides) setLocalTime(overrides.time!);
+      if ("courtType" in overrides) setLocalCourtType(overrides.courtType!);
+      if ("duration" in overrides) setLocalDuration(overrides.duration!);
+      if ("priceMax" in overrides) setLocalPriceMax(overrides.priceMax);
+      if ("amenities" in overrides)
+        setLocalAmenities(overrides.amenities ?? []);
+    }
+  }
+
+  function handleSearch() {
+    const params = buildParams();
+
+    if (onSearch) {
+      onSearch(params);
+      return;
+    }
+
+    navigate({
+      search: params,
+      to: "/search",
+      replace: inline,
+    });
+  }
+
+  return {
+    where,
+    date,
+    time,
+    duration,
+    priceMax,
+    amenities,
+    durationLabel: formatDuration(duration),
+    courtTypeLabel: formatCourtType(courtType),
+    update,
+    handleSearch,
+  };
+}
 
 function UtilityPill({
   label,
@@ -32,34 +170,16 @@ function UtilityPill({
   onValueChange: (value: string) => void;
 }) {
   return (
-    <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
-      <SelectPrimitive.Trigger className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-white px-3 text-xs font-medium text-muted-foreground outline-none transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring">
+    <SimpleSelect value={value} onValueChange={onValueChange}>
+      <SimpleSelectTrigger className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-white px-3 text-xs font-medium text-muted-foreground outline-none transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring">
         <span className="text-foreground/50">{label}:</span>
-        <SelectPrimitive.Value />
-        <SelectPrimitive.Icon>
+        <SimpleSelectValue />
+        <SimpleSelectIcon>
           <ChevronDown className="size-3" />
-        </SelectPrimitive.Icon>
-      </SelectPrimitive.Trigger>
-      <SelectPrimitive.Portal>
-        <SelectPrimitive.Content
-          position="popper"
-          sideOffset={4}
-          className="z-50 min-w-32 overflow-hidden rounded-lg border border-border bg-white py-1 shadow-lg data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
-        >
-          <SelectPrimitive.Viewport>
-            {options.map((opt) => (
-              <SelectPrimitive.Item
-                key={opt}
-                value={opt}
-                className="relative flex cursor-default items-center rounded-sm px-4 py-1.5 text-xs font-medium text-foreground outline-none select-none data-highlighted:bg-muted/50"
-              >
-                <SelectPrimitive.ItemText>{opt}</SelectPrimitive.ItemText>
-              </SelectPrimitive.Item>
-            ))}
-          </SelectPrimitive.Viewport>
-        </SelectPrimitive.Content>
-      </SelectPrimitive.Portal>
-    </SelectPrimitive.Root>
+        </SimpleSelectIcon>
+      </SimpleSelectTrigger>
+      <SimpleSelectContent options={options} />
+    </SimpleSelect>
   );
 }
 
@@ -70,85 +190,21 @@ type BookingBarProps = {
   onSearch?: (params: SearchParams) => void;
 };
 
-export function BookingBar({
-  defaultValues,
-  inline,
-  onSearch,
-}: BookingBarProps) {
-  const navigate = useNavigate();
-  const defaults = { ...getDefaults(), ...defaultValues };
+export function BookingBar(props: BookingBarProps) {
+  const {
+    where,
+    date,
+    time,
+    priceMax,
+    amenities,
+    durationLabel,
+    courtTypeLabel,
+    update,
+    handleSearch,
+  } = useBookingBarState(props);
 
-  const [where, setWhere] = useState(defaults.where);
-  const [date] = useState(defaults.date);
-  const [time, setTime] = useState(defaults.time);
-  const [courtType, setCourtType] = useState(defaults.courtType);
-  const [duration, setDuration] = useState(defaults.duration);
   const [whereOpen, setWhereOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
-
-  const durationLabel =
-    duration === 60 ? "1 hour" : duration === 90 ? "1.5 hours" : "2 hours";
-  const courtTypeLabel =
-    courtType === "any"
-      ? "Any court"
-      : courtType.charAt(0).toUpperCase() + courtType.slice(1);
-
-  function handleSearch() {
-    const params: SearchParams = {
-      courtType: courtType as SearchParams["courtType"],
-      date,
-      duration,
-      sort: defaults.sort,
-      time,
-      where,
-      ...(defaults.priceMax ? { priceMax: defaults.priceMax } : {}),
-    };
-
-    if (onSearch) {
-      onSearch(params);
-      return;
-    }
-
-    if (inline) {
-      navigate({
-        replace: true,
-        search: params,
-        to: "/search",
-      });
-    } else {
-      navigate({ search: params, to: "/search" });
-    }
-  }
-
-  const timeOptions = [
-    "Any time",
-    "6:00 AM",
-    "7:00 AM",
-    "8:00 AM",
-    "9:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "12:00 PM",
-    "1:00 PM",
-    "2:00 PM",
-    "3:00 PM",
-    "4:00 PM",
-    "5:00 PM",
-    "6:00 PM",
-    "7:00 PM",
-  ];
-
-  function parseTimeOption(opt: string): string {
-    if (opt === "Any time") return "any";
-    const match = opt.match(/^(\d+):00\s*(AM|PM)$/);
-    if (!match) return "any";
-    let h = Number(match[1]);
-    if (match[2] === "PM" && h !== 12) h += 12;
-    if (match[2] === "AM" && h === 12) h = 0;
-    return `${String(h).padStart(2, "0")}:00`;
-  }
-
-  const areas = [{ name: "All Cebu", slug: "cebu-city" }, ...AREAS];
 
   return (
     <div className="mx-auto w-full max-w-3xl">
@@ -158,34 +214,18 @@ export function BookingBar({
           label="Court"
           value={courtTypeLabel}
           options={COURT_TYPES}
-          onValueChange={(v) =>
-            setCourtType(
-              v === "Any court"
-                ? "any"
-                : (v.toLowerCase() as SearchParams["courtType"])
-            )
-          }
+          onValueChange={(v) => update({ courtType: parseCourtTypeOption(v) })}
         />
         <UtilityPill
           label="Duration"
           value={durationLabel}
           options={DURATIONS}
-          onValueChange={(v) => {
-            const mins = v.startsWith("1.5")
-              ? 90
-              : v.startsWith("2")
-                ? 120
-                : 60;
-            setDuration(mins);
-          }}
+          onValueChange={(v) => update({ duration: parseDurationOption(v) })}
         />
-        <button
-          type="button"
-          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-white px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-        >
-          <SlidersHorizontal className="size-3" />
-          <span>Filters</span>
-        </button>
+        <FiltersButton
+          searchParams={{ priceMax, amenities }}
+          onChange={(values) => update(values)}
+        />
       </div>
 
       {/* Main booking bar */}
@@ -211,12 +251,12 @@ export function BookingBar({
             </button>
             {whereOpen && (
               <div className="absolute top-full left-0 z-50 w-full border-b border-border bg-white shadow-lg">
-                {areas.map((a) => (
+                {AREAS_WITH_ALL.map((a) => (
                   <button
                     key={a.slug}
                     type="button"
                     onClick={() => {
-                      setWhere(a.slug);
+                      update({ where: a.slug });
                       setWhereOpen(false);
                     }}
                     className="block w-full px-5 py-2.5 text-left text-sm font-medium hover:bg-muted/50"
@@ -259,12 +299,12 @@ export function BookingBar({
               </button>
               {timeOpen && (
                 <div className="absolute top-full right-0 z-50 max-h-48 w-40 overflow-y-auto rounded-lg border border-border bg-white py-1 shadow-lg">
-                  {timeOptions.map((opt) => (
+                  {TIME_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       type="button"
                       onClick={() => {
-                        setTime(parseTimeOption(opt));
+                        update({ time: parseTimeOption(opt) });
                         setTimeOpen(false);
                       }}
                       className="block w-full px-4 py-1.5 text-left text-xs font-medium hover:bg-muted/50"
@@ -307,12 +347,12 @@ export function BookingBar({
             </button>
             {whereOpen && (
               <div className="absolute top-full left-0 z-50 w-48 rounded-lg border border-border bg-white py-1 shadow-lg">
-                {areas.map((a) => (
+                {AREAS_WITH_ALL.map((a) => (
                   <button
                     key={a.slug}
                     type="button"
                     onClick={() => {
-                      setWhere(a.slug);
+                      update({ where: a.slug });
                       setWhereOpen(false);
                     }}
                     className="block w-full px-4 py-1.5 text-left text-sm font-medium hover:bg-muted/50"
@@ -352,12 +392,12 @@ export function BookingBar({
             </button>
             {timeOpen && (
               <div className="absolute top-full right-0 z-50 max-h-48 w-40 overflow-y-auto rounded-lg border border-border bg-white py-1 shadow-lg">
-                {timeOptions.map((opt) => (
+                {TIME_OPTIONS.map((opt) => (
                   <button
                     key={opt}
                     type="button"
                     onClick={() => {
-                      setTime(parseTimeOption(opt));
+                      update({ time: parseTimeOption(opt) });
                       setTimeOpen(false);
                     }}
                     className="block w-full px-4 py-1.5 text-left text-xs font-medium hover:bg-muted/50"

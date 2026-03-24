@@ -1,24 +1,49 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronDown, SearchX } from "lucide-react";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
+import { ChevronDown, SearchX, Share2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { BookingBar } from "#/components/landing/booking-bar";
-import { ResultCard } from "#/components/search/result-card";
+import { ResultCard, ResultCardSkeleton } from "#/components/search/result-card";
+import {
+  SimpleSelect,
+  SimpleSelectContent,
+  SimpleSelectIcon,
+  SimpleSelectTrigger,
+  SimpleSelectValue,
+} from "#/components/ui/simple-select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "#/components/ui/tooltip";
 import { QUICK_PICKS } from "#/lib/constants";
 import { formatHour } from "#/lib/format";
+import { copyCurrentUrl } from "#/lib/share";
 import type { SearchResponse } from "#/lib/search";
 import { searchVenues } from "#/lib/search";
 import type { SearchParams } from "#/lib/search-params";
 import {
   applyQuickPick,
+  getDefaults,
+  isQuickPickActive,
+  removeQuickPick,
   resolveDate,
   searchParamsSchema,
 } from "#/lib/search-params";
 
+const quickPickDescriptions: Record<string, string> = {
+  Tonight: "Showing courts available from 6 PM today",
+  Tomorrow: "Showing courts available all day",
+  Weekend: "Showing courts for this weekend",
+  Indoor: "Showing indoor courts only",
+  "Under ₱400": "Showing courts under ₱400",
+};
+
 const SORT_OPTIONS = [
-  { value: "best", label: "Best match" },
-  { value: "price", label: "Lowest price" },
-  { value: "earliest", label: "Earliest available" },
+  { label: "Best match", value: "best" },
+  { label: "Lowest price", value: "price" },
+  { label: "Earliest available", value: "earliest" },
 ] as const;
 
 function SearchPage() {
@@ -28,20 +53,54 @@ function SearchPage() {
 
   const response: SearchResponse = useMemo(
     () => searchVenues({ ...params, date }),
-    [params, date],
+    [params, date]
   );
 
-  const [sortOpen, setSortOpen] = useState(false);
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.value === params.sort)?.label ?? "Best match";
+  // Fake loading state — show stale results while "loading"
+  const [isLoading, setIsLoading] = useState(false);
+  const staleResponse = useRef(response);
+  const paramsKey = JSON.stringify(params);
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setIsLoading(true);
+    const id = setTimeout(() => {
+      staleResponse.current = response;
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(id);
+  }, [paramsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When not loading, always keep stale in sync
+  if (!isLoading) {
+    staleResponse.current = response;
+  }
+
+  const displayResponse = isLoading ? staleResponse.current : response;
+  const hasStaleResults = isLoading && staleResponse.current.results.length > 0;
 
   function updateParams(updates: Partial<SearchParams>) {
-    navigate({ search: { ...params, ...updates }, replace: true });
+    navigate({ replace: true, search: { ...params, ...updates } });
   }
 
   function handleQuickPick(label: string) {
-    const updated = applyQuickPick({ ...params, date }, label);
-    navigate({ search: updated, replace: true });
+    const paramsWithDate = { ...params, date };
+    if (isQuickPickActive(paramsWithDate, label)) {
+      navigate({ replace: true, search: removeQuickPick(paramsWithDate, label) });
+    } else {
+      const updated = applyQuickPick(paramsWithDate, label);
+      navigate({ replace: true, search: updated });
+      toast(label, {
+        description: quickPickDescriptions[label],
+        action: {
+          label: "Undo",
+          onClick: () => navigate({ replace: true, search: removeQuickPick(updated, label) }),
+        },
+      });
+    }
   }
 
   return (
@@ -52,21 +111,28 @@ function SearchPage() {
           <BookingBar
             defaultValues={{ ...params, date }}
             inline
-            onSearch={(p) => navigate({ search: p, replace: true })}
+            onSearch={(p) => navigate({ replace: true, search: p })}
           />
 
           {/* Quick picks */}
           <div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center gap-2 px-1">
-            {QUICK_PICKS.map((pick) => (
-              <button
-                key={pick.label}
-                type="button"
-                onClick={() => handleQuickPick(pick.label)}
-                className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-lime hover:bg-lime/10 hover:text-foreground"
-              >
-                {pick.label}
-              </button>
-            ))}
+            {QUICK_PICKS.map((pick) => {
+              const active = isQuickPickActive({ ...params, date }, pick.label);
+              return (
+                <button
+                  key={pick.label}
+                  type="button"
+                  onClick={() => handleQuickPick(pick.label)}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    active
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-white text-muted-foreground hover:border-lime hover:bg-lime/10 hover:text-foreground"
+                  }`}
+                >
+                  {pick.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -74,42 +140,56 @@ function SearchPage() {
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {/* Summary + sort */}
         <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm font-medium text-muted-foreground">
-            {response.summary}
-          </p>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setSortOpen(!sortOpen)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+          {isLoading && !hasStaleResults ? (
+            <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+          ) : (
+            <p className="text-sm font-medium text-muted-foreground">
+              {displayResponse.summary}
+            </p>
+          )}
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => copyCurrentUrl("Share this URL to help others find these courts.")}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  <Share2 className="size-3.5" />
+                  Share
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Copy link</TooltipContent>
+            </Tooltip>
+            <SimpleSelect
+              value={params.sort ?? "best"}
+              onValueChange={(value) =>
+                updateParams({ sort: value as SearchParams["sort"] })
+              }
             >
-              {sortLabel}
-              <ChevronDown className="size-3.5" />
-            </button>
-            {sortOpen && (
-              <div className="absolute top-full right-0 z-50 mt-1 w-40 rounded-lg border border-border bg-white py-1 shadow-lg">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => {
-                      updateParams({ sort: opt.value as SearchParams["sort"] });
-                      setSortOpen(false);
-                    }}
-                    className="block w-full px-4 py-1.5 text-left text-xs font-medium text-foreground hover:bg-muted/50"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
+              <SimpleSelectTrigger className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground outline-none">
+                <SimpleSelectValue />
+                <SimpleSelectIcon>
+                  <ChevronDown className="size-3.5" />
+                </SimpleSelectIcon>
+              </SimpleSelectTrigger>
+              <SimpleSelectContent options={SORT_OPTIONS} align="end" />
+            </SimpleSelect>
           </div>
         </div>
 
         {/* Results */}
-        {response.results.length > 0 && (
+        {isLoading && !hasStaleResults ? (
           <div className="space-y-4">
-            {response.results.map((result) => (
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ResultCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : displayResponse.results.length > 0 ? (
+          <div
+            className={`space-y-4 transition-opacity duration-150 ${isLoading ? "pointer-events-none opacity-50" : ""}`}
+          >
+            {displayResponse.results.map((result) => (
               <ResultCard
                 key={result.venue.slug}
                 result={result}
@@ -118,23 +198,20 @@ function SearchPage() {
               />
             ))}
           </div>
-        )}
-
-        {/* Fallback / empty state */}
-        {response.results.length === 0 && (
+        ) : (
           <div className="py-12 text-center">
             <SearchX className="mx-auto size-10 text-muted-foreground/40" />
             <p className="mt-4 text-lg font-semibold text-foreground">
-              {response.summary}
+              {displayResponse.summary}
             </p>
 
-            {response.fallback && response.fallback.length > 0 && (
+            {displayResponse.fallback && displayResponse.fallback.length > 0 && (
               <div className="mx-auto mt-8 max-w-2xl">
                 <p className="mb-4 text-sm font-medium text-muted-foreground">
                   Closest available options:
                 </p>
                 <div className="space-y-3">
-                  {response.fallback.map((result) => (
+                  {displayResponse.fallback.map((result) => (
                     <div
                       key={result.venue.slug}
                       className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3"
@@ -159,8 +236,8 @@ function SearchPage() {
                             params={{ slug: result.venue.slug }}
                             search={{
                               date,
-                              start: String(slot.hour),
                               duration: String(params.duration),
+                              start: String(slot.hour),
                             }}
                             className="rounded-lg border border-lime/40 bg-lime/10 px-2.5 py-1 text-xs font-semibold hover:bg-lime/20"
                           >
@@ -176,7 +253,6 @@ function SearchPage() {
           </div>
         )}
       </main>
-
     </>
   );
 }
@@ -184,4 +260,7 @@ function SearchPage() {
 export const Route = createFileRoute("/_layout/search")({
   component: SearchPage,
   validateSearch: (search) => searchParamsSchema.parse(search),
+  search: {
+    middlewares: [stripSearchParams<SearchParams>(getDefaults())],
+  },
 });
