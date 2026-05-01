@@ -27,6 +27,7 @@
     "format:unsafe": "bun run --filter '*' format:unsafe"
   },
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ]
 }
