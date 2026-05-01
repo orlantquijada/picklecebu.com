@@ -24,7 +24,7 @@ export const requireAuth = createMiddleware<{
       token,
       env.JWT_SECRET,
       "HS256"
-    )) as JWTPayload;
+    )) as unknown as JWTPayload;
     c.set("user", payload);
     await next();
   } catch {
@@ -44,7 +44,7 @@ export const requireOwner = createMiddleware<{
       token,
       env.JWT_SECRET,
       "HS256"
-    )) as JWTPayload;
+    )) as unknown as JWTPayload;
     if (payload.role !== "owner" && payload.role !== "admin") {
       return c.json({ error: "Forbidden" }, 403);
     }
@@ -67,7 +67,7 @@ export const requireAdmin = createMiddleware<{
       token,
       env.JWT_SECRET,
       "HS256"
-    )) as JWTPayload;
+    )) as unknown as JWTPayload;
     if (payload.role !== "admin") {
       return c.json({ error: "Forbidden" }, 403);
     }
