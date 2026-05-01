@@ -22,7 +22,6 @@ import { formatHour } from "#/lib/format";
 import { copyCurrentUrl } from "#/lib/share";
 import type { SearchResponse } from "#/lib/search";
 import { searchVenues } from "#/lib/search";
-import type { SearchParams } from "#/lib/search-params";
 import {
   applyQuickPick,
   getDefaults,
@@ -31,6 +30,7 @@ import {
   resolveDate,
   searchParamsSchema,
 } from "#/lib/search-params";
+import type { SearchParams } from "#/lib/search-params";
 
 const quickPickDescriptions: Record<string, string> = {
   Tonight: "Showing courts available from 6 PM today",
@@ -259,8 +259,8 @@ function SearchPage() {
 
 export const Route = createFileRoute("/_layout/search")({
   component: SearchPage,
-  validateSearch: (search) => searchParamsSchema.parse(search),
+  validateSearch: searchParamsSchema,
   search: {
-    middlewares: [stripSearchParams<SearchParams>(getDefaults())],
+    middlewares: [stripSearchParams(getDefaults())],
   },
 });

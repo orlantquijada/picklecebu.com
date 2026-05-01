@@ -385,4 +385,4 @@ export const QUICK_PICKS = [
 
 export const COURT_TYPES = ["Any court", "Indoor", "Outdoor", "Covered"];
 
-export const DURATIONS = ["1 hour", "1.5 hours", "2 hours"];
+export const DURATIONS = ["1 hour", "2 hours"];
