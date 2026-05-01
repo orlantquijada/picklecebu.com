@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
 import { db } from "../db/client";
@@ -11,6 +12,17 @@ import type { JWTPayload } from "../middleware/auth";
 const app = new Hono<{ Variables: { user: JWTPayload } }>();
 
 app.use("*", requireOwner);
+
+async function assertCourtAccess(courtId: string, user: JWTPayload) {
+  const [court] = await db
+    .select({ ownerId: courts.ownerId })
+    .from(courts)
+    .where(eq(courts.id, courtId));
+  if (!court) throw new HTTPException(404, { message: "Court not found" });
+  if (user.role !== "admin" && court.ownerId !== user.sub)
+    throw new HTTPException(403, { message: "Forbidden" });
+  return court;
+}
 
 // GET /api/dashboard/courts
 app.get("/courts", async (c) => {
@@ -37,17 +49,7 @@ app.get("/courts/:id/bookings", async (c) => {
   const to = c.req.query("to");
   const status = c.req.query("status");
 
-  const [court] = await db
-    .select({ id: courts.id, ownerId: courts.ownerId })
-    .from(courts)
-    .where(eq(courts.id, courtId));
-
-  if (!court) {
-    return c.json({ error: "Court not found" }, 404);
-  }
-  if (user.role !== "admin" && court.ownerId !== user.sub) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
+  await assertCourtAccess(courtId, user);
 
   const conditions = [eq(bookings.courtId, courtId)];
   if (from) {
@@ -143,17 +145,7 @@ app.post("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
   const courtId = c.req.param("id");
   const data = c.req.valid("json");
 
-  const [court] = await db
-    .select({ ownerId: courts.ownerId })
-    .from(courts)
-    .where(eq(courts.id, courtId));
-
-  if (!court) {
-    return c.json({ error: "Court not found" }, 404);
-  }
-  if (user.role !== "admin" && court.ownerId !== user.sub) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
+  await assertCourtAccess(courtId, user);
 
   const id = `bs_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
   await db.insert(blockedSlots).values({
@@ -173,17 +165,7 @@ app.delete("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
   const courtId = c.req.param("id");
   const data = c.req.valid("json");
 
-  const [court] = await db
-    .select({ ownerId: courts.ownerId })
-    .from(courts)
-    .where(eq(courts.id, courtId));
-
-  if (!court) {
-    return c.json({ error: "Court not found" }, 404);
-  }
-  if (user.role !== "admin" && court.ownerId !== user.sub) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
+  await assertCourtAccess(courtId, user);
 
   await db
     .delete(blockedSlots)
@@ -212,17 +194,7 @@ app.patch(
     const courtId = c.req.param("id");
     const data = c.req.valid("json");
 
-    const [court] = await db
-      .select({ ownerId: courts.ownerId })
-      .from(courts)
-      .where(eq(courts.id, courtId));
-
-    if (!court) {
-      return c.json({ error: "Court not found" }, 404);
-    }
-    if (user.role !== "admin" && court.ownerId !== user.sub) {
-      return c.json({ error: "Forbidden" }, 403);
-    }
+    await assertCourtAccess(courtId, user);
 
     const updates: Partial<typeof courts.$inferInsert> = {
       updatedAt: new Date().toISOString(),
