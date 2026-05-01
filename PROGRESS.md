@@ -20,12 +20,12 @@ Live state tracker for the scope in `PRD.md`. Each session: read this file, comp
 
 ## Phase 1a — Court data plumbing
 
-- [ ] Add typed helpers to `apps/web/src/lib/api.ts`: `getCourts()`, `getCourt(slug)`, `getAvailability(slug, date)`.
-- [ ] New `apps/web/src/lib/queries.ts` with TanStack Query hooks: `useCourtsQuery`, `useCourtQuery`, `useAvailabilityQuery`.
-- [ ] Wire homepage `_layout.index.tsx`: replace `FEATURED_VENUES` with query result. Loading skeleton + empty state.
-- [ ] Wire search `_layout.search.tsx`: replace `FEATURED_VENUES` + `generateSlots`. Filters stay client-side.
-- [ ] Wire venue detail `_layout.venues.$slug.tsx`: replace `VENUE_DETAILS[slug]` + `generateSlots` with queries.
-- [ ] Remove now-unused `FEATURED_VENUES` and `VENUE_DETAILS` from `apps/web/src/lib/constants.ts`.
+- [x] Add typed helpers to `apps/web/src/lib/api.ts`: `getCourts()`, `getCourt(slug)`, `getAvailability(slug, date)`.
+- [x] New `apps/web/src/lib/queries.ts` with TanStack Query hooks: `useCourtsQuery`, `useCourtQuery`, `useAvailabilityQuery`.
+- [x] Wire homepage `_layout.index.tsx`: replace `FEATURED_VENUES` with query result. Loading skeleton + empty state.
+- [x] Wire search `_layout.search.tsx`: replace `FEATURED_VENUES` + `generateSlots`. Filters stay client-side.
+- [x] Wire venue detail `_layout.venues.$slug.tsx`: replace `VENUE_DETAILS[slug]` + `generateSlots` with queries.
+- [x] Remove now-unused `FEATURED_VENUES` and `VENUE_DETAILS` from `apps/web/src/lib/constants.ts`.
 
 ## Phase 1b — Booking checkout
 
@@ -59,3 +59,4 @@ Live state tracker for the scope in `PRD.md`. Each session: read this file, comp
 _Append one line per session: `YYYY-MM-DD — <section> — <one-sentence summary> — <any new follow-up>`._
 
 2026-05-01 — Phase 0 — Added 4 schema columns + migration, replaced seed with 6 VENUE_DETAILS courts, patched bookings returnUrl to /venues/, dropped 1.5h, fixed 2 pre-existing typecheck errors (auth.ts JWTPayload cast, search route validateSearch schema passthrough). — Old placeholder courts (sm-seaside, ayala-center) remain in DB with null new columns; harmless but could be cleaned up before launch.
+2026-05-01 — Phase 1a — Wired frontend to real API: ApiCourt type + adapters in api.ts, queries.ts with 4 TanStack Query hooks, refactored searchVenues to pure function, replaced FEATURED_VENUES/VENUE_DETAILS with live data across homepage/search/venue-detail, updated migrate.ts to include new columns. — migrate.ts uses CREATE TABLE IF NOT EXISTS (no ALTER TABLE); dev reset requires dropping DB + re-running migrate+seed.

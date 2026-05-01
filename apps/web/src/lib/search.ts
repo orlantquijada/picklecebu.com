@@ -1,12 +1,8 @@
 import type { Venue } from "./constants";
-import { FEATURED_VENUES } from "./constants";
+import type { TimeSlot } from "./api";
 import type { SearchParams } from "./search-params";
-import { getWeekendDates, resolveDate } from "./search-params";
 
-export type TimeSlot = {
-  hour: number;
-  available: boolean;
-};
+export type { TimeSlot };
 
 export type SearchResult = {
   venue: Venue;
@@ -19,30 +15,6 @@ export type SearchResponse = {
   fallback: SearchResult[] | null;
   summary: string;
 };
-
-/** Deterministic pseudo-random from string seed */
-function seededRand(seed: string): () => number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
-  }
-  return () => {
-    h = (h + 0x6d2b79f5) | 0;
-    let t = Math.imul(h ^ (h >>> 15), 1 | h);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/** Generate mock availability slots for a venue on a date */
-function generateSlots(slug: string, date: string): TimeSlot[] {
-  const rand = seededRand(`${slug}-${date}`);
-  const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
-  return hours.map((hour) => ({
-    hour,
-    available: rand() > 0.35, // ~65% availability
-  }));
-}
 
 function getVenueCourtTypes(venue: Venue): string[] {
   const types: string[] = [];
@@ -136,11 +108,11 @@ function sortResults(
   return sorted;
 }
 
-export function searchVenues(params: SearchParams): SearchResponse {
-  const date = resolveDate(params);
-  const allVenues = FEATURED_VENUES;
-
-  // Filter venues
+export function searchVenues(
+  allVenues: Venue[],
+  slots: Map<string, TimeSlot[]>,
+  params: SearchParams
+): SearchResponse {
   const filtered = allVenues.filter((v) => {
     if (!matchesArea(v, params.where)) return false;
     if (!matchesCourtType(v, params.courtType)) return false;
@@ -149,35 +121,19 @@ export function searchVenues(params: SearchParams): SearchResponse {
     return true;
   });
 
-  const dates = params.weekend ? getWeekendDates() : [date];
-
-  // Generate availability and filter slots (merge across dates for weekend)
   const results: SearchResult[] = filtered.map((venue) => {
-    const allMatching: TimeSlot[] = [];
-    for (const d of dates) {
-      const allSlots = generateSlots(venue.slug, d);
-      const matching = filterSlotsByTime(allSlots, params.time, params.duration);
-      allMatching.push(...matching);
-    }
-    // Dedupe by hour (keep first occurrence)
-    const seen = new Set<number>();
-    const unique = allMatching.filter((s) => {
-      if (seen.has(s.hour)) return false;
-      seen.add(s.hour);
-      return true;
-    });
+    const allSlots = slots.get(venue.slug) ?? [];
+    const matching = filterSlotsByTime(allSlots, params.time, params.duration);
     return {
       venue,
-      matchingSlots: unique.slice(0, 5),
+      matchingSlots: matching.slice(0, 5),
       courtTypes: getVenueCourtTypes(venue),
     };
   });
 
-  // Separate venues with and without matching slots
   const withSlots = results.filter((r) => r.matchingSlots.length > 0);
   const sorted = sortResults(withSlots, params.sort, params.time);
 
-  // Build summary
   const count = sorted.length;
   const timeDesc =
     params.time === "any"
@@ -194,9 +150,8 @@ export function searchVenues(params: SearchParams): SearchResponse {
     };
   }
 
-  // Fallback: relax filters and show alternatives
   const fallbackResults: SearchResult[] = allVenues.map((venue) => {
-    const allSlots = generateSlots(venue.slug, date);
+    const allSlots = slots.get(venue.slug) ?? [];
     const matching = filterSlotsByTime(allSlots, "any", params.duration);
     return {
       venue,

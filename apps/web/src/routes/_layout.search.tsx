@@ -1,6 +1,6 @@
 import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
 import { ChevronDown, SearchX, Share2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { BookingBar } from "#/components/landing/booking-bar";
@@ -20,8 +20,10 @@ import {
 import { QUICK_PICKS } from "#/lib/constants";
 import { formatHour } from "#/lib/format";
 import { copyCurrentUrl } from "#/lib/share";
+import { apiCourtToVenue } from "#/lib/api";
 import type { SearchResponse } from "#/lib/search";
 import { searchVenues } from "#/lib/search";
+import { useCourtsQuery, useAvailabilityQueries } from "#/lib/queries";
 import {
   applyQuickPick,
   getDefaults,
@@ -51,36 +53,20 @@ function SearchPage() {
   const navigate = Route.useNavigate();
   const date = resolveDate(params);
 
+  const { data: courts, isPending: courtsPending, isFetching: courtsFetching } = useCourtsQuery();
+  const venues = useMemo(() => (courts ?? []).map(apiCourtToVenue), [courts]);
+  const slotsMap = useAvailabilityQueries(courts ?? [], date);
+
+  const isLoading = courtsPending;
+  const isFetching = courtsFetching && !courtsPending;
+
   const response: SearchResponse = useMemo(
-    () => searchVenues({ ...params, date }),
-    [params, date]
+    () => searchVenues(venues, slotsMap, { ...params, date }),
+    [venues, slotsMap, params, date]
   );
 
-  // Fake loading state — show stale results while "loading"
-  const [isLoading, setIsLoading] = useState(false);
-  const staleResponse = useRef(response);
-  const paramsKey = JSON.stringify(params);
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setIsLoading(true);
-    const id = setTimeout(() => {
-      staleResponse.current = response;
-      setIsLoading(false);
-    }, 300);
-    return () => clearTimeout(id);
-  }, [paramsKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // When not loading, always keep stale in sync
-  if (!isLoading) {
-    staleResponse.current = response;
-  }
-
-  const displayResponse = isLoading ? staleResponse.current : response;
-  const hasStaleResults = isLoading && staleResponse.current.results.length > 0;
+  const displayResponse = response;
+  const hasStaleResults = isFetching && response.results.length > 0;
 
   function updateParams(updates: Partial<SearchParams>) {
     navigate({ replace: true, search: { ...params, ...updates } });
