@@ -42,3 +42,4 @@ bun.lockb
 bun.lock
 .vercel
 .env*.local
+.fallow/
