@@ -3,6 +3,16 @@ import type { Amenity, CourtInfo, Venue, VenueDetail } from "./constants";
 
 const BASE = env.VITE_API_URL;
 
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
@@ -14,7 +24,10 @@ export async function apiFetch<T>(
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error((err as { error?: string }).error ?? res.statusText);
+    throw new ApiError(
+      res.status,
+      (err as { error?: string }).error ?? res.statusText,
+    );
   }
   return res.json() as Promise<T>;
 }
@@ -41,6 +54,28 @@ export const getCourts = () => apiFetch<ApiCourt[]>("/api/courts");
 export const getCourt = (slug: string) => apiFetch<ApiCourt>(`/api/courts/${slug}`);
 export const getAvailability = (slug: string, date: string) =>
   apiFetch<TimeSlot[]>(`/api/courts/${slug}/availability?date=${date}`);
+
+export type CreateBookingPayload = {
+  bookingDate: string;
+  courtSlug: string;
+  numHours: number;
+  paymentMethod: "gcash" | "paymaya";
+  playerEmail: string;
+  playerName: string;
+  playerPhone: string;
+  startHour: number;
+};
+
+export type CreateBookingResponse = {
+  bookingId: string;
+  checkoutUrl: string;
+};
+
+export const createBooking = (payload: CreateBookingPayload) =>
+  apiFetch<CreateBookingResponse>("/api/bookings", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 
 function primaryCourtType(amenities: string[]): CourtInfo["type"] {
   for (const a of amenities) {

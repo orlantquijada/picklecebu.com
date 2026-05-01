@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import type { VenueDetail } from "#/lib/constants";
 import { formatCentavos, formatHour } from "#/lib/format";
@@ -58,9 +59,28 @@ export function BookingSidebar({
         </div>
       </div>
 
-      <Button className="mt-4 w-full bg-lime text-lime-foreground hover:bg-lime/90">
-        {hasDate && hasTime ? "Book now" : "Check availability"}
-      </Button>
+      {hasDate && hasTime ? (
+        <Button
+          asChild
+          className="mt-4 w-full bg-lime text-lime-foreground hover:bg-lime/90"
+        >
+          <Link
+            to="/venues/$slug/book"
+            params={{ slug: venue.slug }}
+            search={{
+              date: booking!.date!,
+              start: Number(booking!.start!),
+              duration: Number(booking!.duration ?? "60"),
+            }}
+          >
+            Book now
+          </Link>
+        </Button>
+      ) : (
+        <Button className="mt-4 w-full bg-lime text-lime-foreground hover:bg-lime/90">
+          Check availability
+        </Button>
+      )}
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
         {venue.operatingHours}

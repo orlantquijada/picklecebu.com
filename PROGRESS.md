@@ -29,11 +29,11 @@ Live state tracker for the scope in `PRD.md`. Each session: read this file, comp
 
 ## Phase 1b — Booking checkout
 
-- [ ] New `apps/web/src/components/booking/CheckoutForm.tsx`: name, email, phone (default `+63`), payment method (GCash, Maya).
-- [ ] New full-page route `apps/web/src/routes/_layout.venues.$slug.book.tsx` reading `?date=&start=&duration=`.
-- [ ] Slot summary panel with subtotal + ₱50 convenience fee + total (mirror backend math: `hourlyRate * numHours + 5000`).
-- [ ] Submit handler: `POST /api/bookings`, render 409 inline, toast on 500, `window.location.href = checkoutUrl` on 200.
-- [ ] Rewire venue-detail "Book now" CTA to navigate to `/venues/$slug/book` with the selected slot params.
+- [x] New `apps/web/src/components/booking/CheckoutForm.tsx`: name, email, phone (default `+63`), payment method (GCash, Maya).
+- [x] New full-page route `apps/web/src/routes/_layout.venues.$slug_.book.tsx` reading `?date=&start=&duration=`.
+- [x] Slot summary panel with subtotal + ₱50 convenience fee + total (mirror backend math: `hourlyRate * numHours + 5000`).
+- [x] Submit handler: `POST /api/bookings`, render 409 inline, toast on 500, `window.location.href = checkoutUrl` on 200.
+- [x] Rewire venue-detail "Book now" CTA to navigate to `/venues/$slug/book` with the selected slot params.
 
 ## Phase 1c — Confirmation page
 
@@ -60,3 +60,4 @@ _Append one line per session: `YYYY-MM-DD — <section> — <one-sentence summar
 
 2026-05-01 — Phase 0 — Added 4 schema columns + migration, replaced seed with 6 VENUE_DETAILS courts, patched bookings returnUrl to /venues/, dropped 1.5h, fixed 2 pre-existing typecheck errors (auth.ts JWTPayload cast, search route validateSearch schema passthrough). — Old placeholder courts (sm-seaside, ayala-center) remain in DB with null new columns; harmless but could be cleaned up before launch.
 2026-05-01 — Phase 1a — Wired frontend to real API: ApiCourt type + adapters in api.ts, queries.ts with 4 TanStack Query hooks, refactored searchVenues to pure function, replaced FEATURED_VENUES/VENUE_DETAILS with live data across homepage/search/venue-detail, updated migrate.ts to include new columns. — migrate.ts uses CREATE TABLE IF NOT EXISTS (no ALTER TABLE); dev reset requires dropping DB + re-running migrate+seed.
+2026-05-01 — Phase 1b — Checkout page at /venues/$slug/book: CheckoutForm (name/email/phone/GCash+Maya), summary panel with price breakdown, 409 inline error, 500 toast, Book now CTA wired in booking sidebar; ApiError class added to apiFetch; route uses $slug_ non-nested TanStack Router convention. — POST /api/bookings returns 500 with placeholder PayMongo keys (expected); 409 path untested until real keys; UI unverifiable without browser (SSR confirmed success, client renders after hydration).
