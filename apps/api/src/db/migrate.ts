@@ -30,6 +30,10 @@ export const runMigrations = () => {
       hourly_rate INTEGER NOT NULL,
       is_active INTEGER NOT NULL DEFAULT 1,
       owner_id TEXT NOT NULL REFERENCES court_owners(id),
+      gallery_image_urls TEXT,
+      operating_hours TEXT,
+      cancellation_policy TEXT,
+      rules TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )
