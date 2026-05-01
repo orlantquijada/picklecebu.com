@@ -1,16 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { CalendarCheck, CreditCard, MapPin, Wallet, Zap } from "lucide-react";
 import { z } from "zod";
-
-export const AmenitySchema = z.enum([
-  "Indoor",
-  "Outdoor",
-  "Covered",
-  "Floodlights",
-  "Parking",
-  "Showers",
-  "Pro Shop",
-]);
+export { AmenitySchema, type Amenity } from "@picklecebu/api-contracts";
 
 export const AreaSchema = z.object({
   name: z.string(),
@@ -23,35 +14,8 @@ export const CourtInfoSchema = z.object({
   type: z.enum(["Indoor", "Outdoor", "Covered"]),
 });
 
-export const VenueSchema = z.object({
-  slug: z.string(),
-  name: z.string(),
-  area: z.string(),
-  description: z.string(),
-  pricePerHourCentavos: z.number(),
-  amenities: z.array(AmenitySchema),
-  courtCount: z.number(),
-  badge: z.string().optional(),
-});
-
-export const VenueDetailSchema = VenueSchema.extend({
-  address: z.string(),
-  fullDescription: z.string(),
-  operatingHours: z.string(),
-  courts: z.array(CourtInfoSchema),
-  rules: z.array(z.string()),
-  cancellationPolicy: z.string(),
-  checkInTime: z.string(),
-  checkOutTime: z.string(),
-  maxGuests: z.number(),
-  locationDescription: z.string(),
-});
-
-export type Amenity = z.infer<typeof AmenitySchema>;
 export type Area = z.infer<typeof AreaSchema>;
 export type CourtInfo = z.infer<typeof CourtInfoSchema>;
-export type Venue = z.infer<typeof VenueSchema>;
-export type VenueDetail = z.infer<typeof VenueDetailSchema>;
 
 export type Advantage = {
   icon: LucideIcon;

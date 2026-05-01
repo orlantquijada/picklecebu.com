@@ -1,11 +1,10 @@
-import type { Venue } from "./constants";
-import type { TimeSlot } from "./api";
+import type { ApiCourt, TimeSlot } from "./api";
 import type { SearchParams } from "./search-params";
 
 export type { TimeSlot };
 
 export type SearchResult = {
-  venue: Venue;
+  court: ApiCourt;
   matchingSlots: TimeSlot[];
   courtTypes: string[];
 };
@@ -16,9 +15,9 @@ export type SearchResponse = {
   summary: string;
 };
 
-function getVenueCourtTypes(venue: Venue): string[] {
+function getCourtTypes(court: ApiCourt): string[] {
   const types: string[] = [];
-  for (const a of venue.amenities) {
+  for (const a of court.amenities) {
     const lower = a.toLowerCase();
     if (lower === "indoor" || lower === "outdoor" || lower === "covered") {
       types.push(lower);
@@ -27,15 +26,15 @@ function getVenueCourtTypes(venue: Venue): string[] {
   return types.length > 0 ? types : ["outdoor"];
 }
 
-function matchesCourtType(venue: Venue, courtType: string): boolean {
+function matchesCourtType(court: ApiCourt, courtType: string): boolean {
   if (courtType === "any") return true;
-  return getVenueCourtTypes(venue).includes(courtType);
+  return getCourtTypes(court).includes(courtType);
 }
 
-function matchesArea(venue: Venue, whereSlug: string): boolean {
-  if (whereSlug === "cebu-city") return true; // Cebu City = all areas
-  const venueAreaSlug = venue.area.toLowerCase().replace(/\s+/g, "-");
-  return venueAreaSlug === whereSlug;
+function matchesArea(court: ApiCourt, whereSlug: string): boolean {
+  if (whereSlug === "cebu-city") return true;
+  const areaSlug = court.locationArea.toLowerCase().replace(/\s+/g, "-");
+  return areaSlug === whereSlug;
 }
 
 function filterSlotsByTime(
@@ -45,10 +44,8 @@ function filterSlotsByTime(
 ): TimeSlot[] {
   const numHours = Math.ceil(durationMinutes / 60);
 
-  // Filter to only available slots that can fit the duration
   const valid = slots.filter((s) => {
     if (!s.available) return false;
-    // Check contiguous availability
     for (let h = 0; h < numHours; h++) {
       const needed = s.hour + h;
       const slot = slots.find((sl) => sl.hour === needed);
@@ -61,7 +58,6 @@ function filterSlotsByTime(
 
   const targetHour = Number(time.split(":")[0]);
 
-  // Sort by proximity to target time
   return valid.sort(
     (a, b) => Math.abs(a.hour - targetHour) - Math.abs(b.hour - targetHour),
   );
@@ -75,9 +71,7 @@ function sortResults(
   const sorted = [...results];
   switch (sort) {
     case "price":
-      sorted.sort(
-        (a, b) => a.venue.pricePerHourCentavos - b.venue.pricePerHourCentavos,
-      );
+      sorted.sort((a, b) => a.court.hourlyRate - b.court.hourlyRate);
       break;
     case "earliest":
       sorted.sort((a, b) => {
@@ -87,17 +81,12 @@ function sortResults(
       });
       break;
     default: {
-      // "best" — prioritize: has slots > badge > proximity to requested time
-      const targetHour =
-        time !== "any" ? Number(time.split(":")[0]) : 12;
+      const targetHour = time !== "any" ? Number(time.split(":")[0]) : 12;
       sorted.sort((a, b) => {
         const aSlots = a.matchingSlots.length;
         const bSlots = b.matchingSlots.length;
         if (aSlots > 0 && bSlots === 0) return -1;
         if (bSlots > 0 && aSlots === 0) return 1;
-        const aBadge = a.venue.badge ? 1 : 0;
-        const bBadge = b.venue.badge ? 1 : 0;
-        if (aBadge !== bBadge) return bBadge - aBadge;
         const aDist = Math.abs((a.matchingSlots[0]?.hour ?? 12) - targetHour);
         const bDist = Math.abs((b.matchingSlots[0]?.hour ?? 12) - targetHour);
         return aDist - bDist;
@@ -108,26 +97,25 @@ function sortResults(
   return sorted;
 }
 
-export function searchVenues(
-  allVenues: Venue[],
+export function searchCourts(
+  allCourts: ApiCourt[],
   slots: Map<string, TimeSlot[]>,
-  params: SearchParams
+  params: SearchParams,
 ): SearchResponse {
-  const filtered = allVenues.filter((v) => {
-    if (!matchesArea(v, params.where)) return false;
-    if (!matchesCourtType(v, params.courtType)) return false;
-    if (params.priceMax && v.pricePerHourCentavos / 100 > params.priceMax)
-      return false;
+  const filtered = allCourts.filter((c) => {
+    if (!matchesArea(c, params.where)) return false;
+    if (!matchesCourtType(c, params.courtType)) return false;
+    if (params.priceMax && c.hourlyRate / 100 > params.priceMax) return false;
     return true;
   });
 
-  const results: SearchResult[] = filtered.map((venue) => {
-    const allSlots = slots.get(venue.slug) ?? [];
+  const results: SearchResult[] = filtered.map((court) => {
+    const allSlots = slots.get(court.slug) ?? [];
     const matching = filterSlotsByTime(allSlots, params.time, params.duration);
     return {
-      venue,
+      court,
       matchingSlots: matching.slice(0, 5),
-      courtTypes: getVenueCourtTypes(venue),
+      courtTypes: getCourtTypes(court),
     };
   });
 
@@ -150,13 +138,13 @@ export function searchVenues(
     };
   }
 
-  const fallbackResults: SearchResult[] = allVenues.map((venue) => {
-    const allSlots = slots.get(venue.slug) ?? [];
+  const fallbackResults: SearchResult[] = allCourts.map((court) => {
+    const allSlots = slots.get(court.slug) ?? [];
     const matching = filterSlotsByTime(allSlots, "any", params.duration);
     return {
-      venue,
+      court,
       matchingSlots: matching.slice(0, 3),
-      courtTypes: getVenueCourtTypes(venue),
+      courtTypes: getCourtTypes(court),
     };
   });
 
