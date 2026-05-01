@@ -46,11 +46,11 @@ export function ResultCardSkeleton() {
 }
 
 export function ResultCard({ result, date, duration }: ResultCardProps) {
-  const { venue, matchingSlots, courtTypes } = result;
+  const { court, matchingSlots, courtTypes } = result;
   const priceLabel =
     duration > 60
-      ? `${formatCentavos((venue.pricePerHourCentavos * duration) / 60)}`
-      : formatCentavos(venue.pricePerHourCentavos);
+      ? `${formatCentavos((court.hourlyRate * duration) / 60)}`
+      : formatCentavos(court.hourlyRate);
   const perLabel = duration > 60 ? `for ${duration / 60}hrs` : "/hr";
 
   return (
@@ -60,30 +60,20 @@ export function ResultCard({ result, date, duration }: ResultCardProps) {
           <div className="flex items-center gap-2">
             <Link
               to="/venues/$slug"
-              params={{ slug: venue.slug }}
+              params={{ slug: court.slug }}
               search={{ date, start: undefined, duration: undefined }}
               className="text-lg font-semibold text-foreground hover:underline"
             >
-              {venue.name}
+              {court.name}
             </Link>
-            {venue.badge && (
-              <Badge
-                variant="secondary"
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-              >
-                {venue.badge}
-              </Badge>
-            )}
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="size-3.5" />
-            <span>{venue.area}</span>
+            <span>{court.locationArea}</span>
             <span className="text-border">·</span>
             <span className="capitalize">{courtTypes.join(", ")}</span>
             <span className="text-border">·</span>
-            <span>
-              {venue.courtCount} court{venue.courtCount !== 1 ? "s" : ""}
-            </span>
+            <span>1 court</span>
           </div>
         </div>
         <div className="shrink-0 text-right">
@@ -124,7 +114,7 @@ export function ResultCard({ result, date, duration }: ResultCardProps) {
             <Link
               key={slot.hour}
               to="/venues/$slug"
-              params={{ slug: venue.slug }}
+              params={{ slug: court.slug }}
               search={{
                 date,
                 start: String(slot.hour),
@@ -138,7 +128,7 @@ export function ResultCard({ result, date, duration }: ResultCardProps) {
           {matchingSlots.length >= 5 && (
             <Link
               to="/venues/$slug"
-              params={{ slug: venue.slug }}
+              params={{ slug: court.slug }}
               search={{ date, start: undefined, duration: String(duration) }}
               className="text-xs font-medium text-muted-foreground hover:text-foreground"
             >
@@ -152,7 +142,7 @@ export function ResultCard({ result, date, duration }: ResultCardProps) {
       <div className="mt-3 flex justify-end">
         <Link
           to="/venues/$slug"
-          params={{ slug: venue.slug }}
+          params={{ slug: court.slug }}
           search={{ date, start: undefined, duration: String(duration) }}
           className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >

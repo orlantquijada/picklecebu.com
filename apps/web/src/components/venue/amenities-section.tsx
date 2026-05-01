@@ -1,13 +1,13 @@
 import { Separator } from "#/components/ui/separator";
-import type { VenueDetail } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 import { AMENITY_ICONS } from "#/lib/amenity-icons";
 
-export function AmenitiesSection({ venue }: { venue: VenueDetail }) {
+export function AmenitiesSection({ court }: { court: ApiCourt }) {
   return (
     <section id="amenities">
       <h2 className="text-xl font-semibold">Amenities</h2>
       <div className="mt-4 grid grid-cols-2 gap-4">
-        {venue.amenities.map((amenity) => {
+        {court.amenities.map((amenity) => {
           const Icon = AMENITY_ICONS[amenity];
           if (!Icon) return null;
           return (

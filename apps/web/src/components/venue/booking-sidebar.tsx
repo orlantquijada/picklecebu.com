@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
-import type { VenueDetail } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 import { formatCentavos, formatHour } from "#/lib/format";
 import { formatDateLabel } from "#/lib/search-params";
 
@@ -11,10 +11,10 @@ type BookingParams = {
 };
 
 export function BookingSidebar({
-  venue,
+  court,
   booking,
 }: {
-  venue: VenueDetail;
+  court: ApiCourt;
   booking?: BookingParams;
 }) {
   const hasDate = !!booking?.date;
@@ -25,7 +25,7 @@ export function BookingSidebar({
     <div className="sticky top-20 rounded-xl border bg-card p-6 shadow-lg">
       {/* Price — large and prominent */}
       <p className="text-2xl font-bold">
-        {formatCentavos(venue.pricePerHourCentavos)}
+        {formatCentavos(court.hourlyRate)}
         <span className="text-base font-normal text-muted-foreground">
           {" "}
           per hour
@@ -66,7 +66,7 @@ export function BookingSidebar({
         >
           <Link
             to="/venues/$slug/book"
-            params={{ slug: venue.slug }}
+            params={{ slug: court.slug }}
             search={{
               date: booking.date,
               start: Number(booking.start),
@@ -83,25 +83,22 @@ export function BookingSidebar({
       )}
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        {venue.operatingHours}
+        {court.operatingHours}
       </p>
     </div>
   );
 }
 
-export function MobileBookingBar({ venue }: { venue: VenueDetail }) {
+export function MobileBookingBar({ court }: { court: ApiCourt }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background px-5 py-4 lg:hidden">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div>
           <p className="font-semibold">
-            {formatCentavos(venue.pricePerHourCentavos)}
+            {formatCentavos(court.hourlyRate)}
             <span className="font-normal text-muted-foreground"> /hr</span>
           </p>
-          <p className="text-sm text-muted-foreground">
-            {venue.courtCount} {venue.courtCount === 1 ? "court" : "courts"}{" "}
-            available
-          </p>
+          <p className="text-sm text-muted-foreground">1 court available</p>
         </div>
         <Button
           size="lg"

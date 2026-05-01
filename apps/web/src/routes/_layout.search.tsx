@@ -24,12 +24,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip";
-import { apiCourtToVenue } from "#/lib/api";
 import { QUICK_PICKS } from "#/lib/constants";
 import { formatHour } from "#/lib/format";
 import { useCourtsQuery, useAvailabilityQueries } from "#/lib/queries";
 import type { SearchResponse } from "#/lib/search";
-import { searchVenues } from "#/lib/search";
+import { searchCourts } from "#/lib/search";
 import {
   applyQuickPick,
   getDefaults,
@@ -65,15 +64,14 @@ function SearchPage() {
     isPending: courtsPending,
     isFetching: courtsFetching,
   } = useCourtsQuery();
-  const venues = useMemo(() => (courts ?? []).map(apiCourtToVenue), [courts]);
   const slotsMap = useAvailabilityQueries(courts ?? [], date);
 
   const isLoading = courtsPending;
   const isFetching = courtsFetching && !courtsPending;
 
   const response: SearchResponse = useMemo(
-    () => searchVenues(venues, slotsMap, { ...params, date }),
-    [venues, slotsMap, params, date]
+    () => searchCourts(courts ?? [], slotsMap, { ...params, date }),
+    [courts, slotsMap, params, date]
   );
 
   const displayResponse = response;
@@ -203,7 +201,7 @@ function SearchPage() {
           >
             {displayResponse.results.map((result) => (
               <ResultCard
-                key={result.venue.slug}
+                key={result.court.slug}
                 result={result}
                 date={date}
                 duration={params.duration}
@@ -226,19 +224,19 @@ function SearchPage() {
                   <div className="space-y-3">
                     {displayResponse.fallback.map((result) => (
                       <div
-                        key={result.venue.slug}
+                        key={result.court.slug}
                         className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3"
                       >
                         <div>
                           <Link
                             to="/venues/$slug"
-                            params={{ slug: result.venue.slug }}
+                            params={{ slug: result.court.slug }}
                             className="text-sm font-semibold hover:underline"
                           >
-                            {result.venue.name}
+                            {result.court.name}
                           </Link>
                           <p className="text-xs text-muted-foreground">
-                            {result.venue.area}
+                            {result.court.locationArea}
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -246,7 +244,7 @@ function SearchPage() {
                             <Link
                               key={slot.hour}
                               to="/venues/$slug"
-                              params={{ slug: result.venue.slug }}
+                              params={{ slug: result.court.slug }}
                               search={{
                                 date,
                                 duration: String(params.duration),

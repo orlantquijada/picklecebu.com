@@ -1,4 +1,3 @@
-import { apiCourtToVenue } from "#/lib/api";
 import { useCourtsQuery } from "#/lib/queries";
 
 import { VenueCard } from "./venue-card";
@@ -17,7 +16,6 @@ function VenueCardSkeleton() {
 
 export function FeaturedVenues() {
   const { data: courts, isPending } = useCourtsQuery();
-  const venues = courts?.map(apiCourtToVenue) ?? [];
 
   return (
     <section className="bg-muted/50 py-12 md:py-16">
@@ -44,8 +42,8 @@ export function FeaturedVenues() {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <VenueCardSkeleton key={i} />
               ))
-            : venues.map((venue, i) => (
-                <VenueCard key={venue.slug} venue={venue} index={i} />
+            : (courts ?? []).map((court, i) => (
+                <VenueCard key={court.slug} court={court} index={i} />
               ))}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import type { Venue } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 import { formatCentavos } from "#/lib/format";
 import { AMENITY_ICONS } from "#/lib/amenity-icons";
 
@@ -14,16 +14,16 @@ const VENUE_COLORS = [
 ];
 
 export function VenueCard({
-  venue,
+  court,
   index,
 }: {
-  venue: Venue;
+  court: ApiCourt;
   index: number;
 }) {
   return (
     <Link
       to="/venues/$slug"
-      params={{ slug: venue.slug }}
+      params={{ slug: court.slug }}
       className="group block"
     >
       {/* Image area */}
@@ -76,19 +76,10 @@ export function VenueCard({
           <circle cx="150" cy="200" r="8" stroke="white" strokeWidth="1.5" fill="none" />
         </svg>
 
-        {/* Badge — top left */}
-        {venue.badge && (
-          <div className="absolute left-3 top-3 z-10">
-            <span className="rounded-md bg-lime px-2 py-1 text-xs font-bold uppercase tracking-wide text-lime-foreground">
-              {venue.badge}
-            </span>
-          </div>
-        )}
-
         {/* Price badge — top right */}
         <div className="absolute right-3 top-3 z-10">
           <span className="rounded-md bg-lime px-2 py-1 text-sm font-bold text-lime-foreground">
-            {formatCentavos(venue.pricePerHourCentavos)}
+            {formatCentavos(court.hourlyRate)}
             <span className="text-xs font-medium">/hr</span>
           </span>
         </div>
@@ -96,13 +87,12 @@ export function VenueCard({
 
       {/* Details below image */}
       <div className="mt-3 space-y-1">
-        <h3 className="text-lg font-bold tracking-tight">{venue.name}</h3>
+        <h3 className="text-lg font-bold tracking-tight">{court.name}</h3>
         <p className="text-sm text-muted-foreground">
-          {venue.area}, Cebu · {venue.courtCount}{" "}
-          {venue.courtCount === 1 ? "Court" : "Courts"}
+          {court.locationArea}, Cebu · 1 Court
         </p>
         <div className="flex gap-3 pt-1">
-          {venue.amenities.slice(0, 3).map((amenity) => {
+          {court.amenities.slice(0, 3).map((amenity) => {
             const Icon = AMENITY_ICONS[amenity];
             if (!Icon) return null;
             return (

@@ -14,6 +14,7 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout.index'
 import { Route as LayoutSearchRouteImport } from './routes/_layout.search'
 import { Route as LayoutVenuesSlugRouteImport } from './routes/_layout.venues.$slug'
 import { Route as LayoutVenuesSlugBookRouteImport } from './routes/_layout.venues.$slug_.book'
+import { Route as LayoutVenuesSlugConfirmRouteImport } from './routes/_layout.venues.$slug_.confirm'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -39,18 +40,25 @@ const LayoutVenuesSlugBookRoute = LayoutVenuesSlugBookRouteImport.update({
   path: '/venues/$slug/book',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutVenuesSlugConfirmRoute = LayoutVenuesSlugConfirmRouteImport.update({
+  id: '/venues/$slug_/confirm',
+  path: '/venues/$slug/confirm',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/search': typeof LayoutSearchRoute
   '/venues/$slug': typeof LayoutVenuesSlugRoute
   '/venues/$slug/book': typeof LayoutVenuesSlugBookRoute
+  '/venues/$slug/confirm': typeof LayoutVenuesSlugConfirmRoute
 }
 export interface FileRoutesByTo {
   '/search': typeof LayoutSearchRoute
   '/': typeof LayoutIndexRoute
   '/venues/$slug': typeof LayoutVenuesSlugRoute
   '/venues/$slug/book': typeof LayoutVenuesSlugBookRoute
+  '/venues/$slug/confirm': typeof LayoutVenuesSlugConfirmRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/venues/$slug': typeof LayoutVenuesSlugRoute
   '/_layout/venues/$slug_/book': typeof LayoutVenuesSlugBookRoute
+  '/_layout/venues/$slug_/confirm': typeof LayoutVenuesSlugConfirmRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/search' | '/venues/$slug' | '/venues/$slug/book'
+  fullPaths: '/' | '/search' | '/venues/$slug' | '/venues/$slug/book' | '/venues/$slug/confirm'
   fileRoutesByTo: FileRoutesByTo
-  to: '/search' | '/' | '/venues/$slug' | '/venues/$slug/book'
+  to: '/search' | '/' | '/venues/$slug' | '/venues/$slug/book' | '/venues/$slug/confirm'
   id:
     | '__root__'
     | '/_layout'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/_layout/'
     | '/_layout/venues/$slug'
     | '/_layout/venues/$slug_/book'
+    | '/_layout/venues/$slug_/confirm'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -115,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutVenuesSlugBookRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/venues/$slug_/confirm': {
+      id: '/_layout/venues/$slug_/confirm'
+      path: '/venues/$slug/confirm'
+      fullPath: '/venues/$slug/confirm'
+      preLoaderRoute: typeof LayoutVenuesSlugConfirmRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
@@ -123,6 +140,7 @@ interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutVenuesSlugRoute: typeof LayoutVenuesSlugRoute
   LayoutVenuesSlugBookRoute: typeof LayoutVenuesSlugBookRoute
+  LayoutVenuesSlugConfirmRoute: typeof LayoutVenuesSlugConfirmRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -130,6 +148,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutVenuesSlugRoute: LayoutVenuesSlugRoute,
   LayoutVenuesSlugBookRoute: LayoutVenuesSlugBookRoute,
+  LayoutVenuesSlugConfirmRoute: LayoutVenuesSlugConfirmRoute,
 }
 
 const LayoutRouteWithChildren =

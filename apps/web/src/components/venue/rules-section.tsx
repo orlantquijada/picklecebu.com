@@ -1,8 +1,8 @@
 import { CircleAlert, Clock, LogIn, LogOut, Users } from "lucide-react";
 
-import type { VenueDetail } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 
-export function RulesSection({ venue }: { venue: VenueDetail }) {
+export function RulesSection({ court }: { court: ApiCourt }) {
   return (
     <section id="rules">
       <h2 className="text-xl font-semibold">Things to know</h2>
@@ -12,7 +12,7 @@ export function RulesSection({ venue }: { venue: VenueDetail }) {
           <h3 className="text-sm font-semibold">Cancellation policy</h3>
           <div className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
             <Clock className="mt-0.5 size-4 shrink-0" />
-            <span>{venue.cancellationPolicy}</span>
+            <span>{court.cancellationPolicy}</span>
           </div>
         </div>
 
@@ -20,7 +20,7 @@ export function RulesSection({ venue }: { venue: VenueDetail }) {
         <div>
           <h3 className="text-sm font-semibold">Venue rules</h3>
           <ul className="mt-3 space-y-2">
-            {venue.rules.map((rule) => (
+            {court.rules.map((rule) => (
               <li
                 key={rule}
                 className="flex items-start gap-2 text-sm text-muted-foreground"
@@ -38,15 +38,15 @@ export function RulesSection({ venue }: { venue: VenueDetail }) {
           <ul className="mt-3 space-y-2">
             <li className="flex items-start gap-2 text-sm text-muted-foreground">
               <LogIn className="mt-0.5 size-4 shrink-0" />
-              <span>{venue.checkInTime}</span>
+              <span>Arrive a few minutes before your slot</span>
             </li>
             <li className="flex items-start gap-2 text-sm text-muted-foreground">
               <LogOut className="mt-0.5 size-4 shrink-0" />
-              <span>{venue.checkOutTime}</span>
+              <span>Please vacate the court on time</span>
             </li>
             <li className="flex items-start gap-2 text-sm text-muted-foreground">
               <Users className="mt-0.5 size-4 shrink-0" />
-              <span>{venue.maxGuests} players maximum</span>
+              <span>4 players maximum</span>
             </li>
           </ul>
         </div>

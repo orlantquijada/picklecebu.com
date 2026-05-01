@@ -13,7 +13,6 @@ import { CourtsSection } from "#/components/venue/courts-section";
 import { AmenitiesSection } from "#/components/venue/amenities-section";
 import { LocationSection } from "#/components/venue/location-section";
 import { RulesSection } from "#/components/venue/rules-section";
-import { apiCourtToVenueDetail } from "#/lib/api";
 import { useCourtQuery, useAvailabilityQuery } from "#/lib/queries";
 
 const venueSearchSchema = z.object({
@@ -61,8 +60,6 @@ function VenueDetailPage() {
     );
   }
 
-  const venue = apiCourtToVenueDetail(court);
-
   return (
     <>
       <div className="mx-auto max-w-7xl px-4 pt-6 pb-20 sm:px-6 lg:px-8 lg:pb-16">
@@ -72,27 +69,27 @@ function VenueDetailPage() {
         {/* Venue header + sidebar start together */}
         <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px]">
           <div className="min-w-0">
-            <VenueHeader venue={venue} />
+            <VenueHeader court={court} />
             <div className="mt-6">
               <SectionNav />
             </div>
             {/* Content sections */}
             <div className="mt-8 space-y-8">
-              <AboutSection venue={venue} />
-              <CourtsSection venue={venue} />
-              <AmenitiesSection venue={venue} />
-              <LocationSection venue={venue} />
-              <RulesSection venue={venue} />
+              <AboutSection court={court} />
+              <CourtsSection court={court} />
+              <AmenitiesSection court={court} />
+              <LocationSection court={court} />
+              <RulesSection court={court} />
             </div>
           </div>
 
           {/* Right column — sticky booking sidebar, starts at venue header level */}
           <div className="hidden lg:block">
-            <BookingSidebar venue={venue} booking={search} />
+            <BookingSidebar court={court} booking={search} />
           </div>
         </div>
       </div>
-      <MobileBookingBar venue={venue} />
+      <MobileBookingBar court={court} />
     </>
   );
 }

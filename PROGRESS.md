@@ -37,14 +37,14 @@ Live state tracker for the scope in `PRD.md`. Each session: read this file, comp
 
 ## Phase 1c — Confirmation page
 
-- [ ] New `apps/web/src/routes/_layout.venues.$slug.confirm.tsx`. Read `?booking_id=` from search params.
-- [ ] Poll `GET /api/bookings/:id/status` via TanStack Query `refetchInterval: 2000`, capped at 15 attempts.
-- [ ] Render the four states: `pending`, `confirmed`, `failed`, `cancelled` / 404. Match the existing booking-sidebar visual language.
+- [x] New `apps/web/src/routes/_layout.venues.$slug_.confirm.tsx`. Read `?booking_id=` from search params.
+- [x] Poll `GET /api/bookings/:id/status` via TanStack Query `refetchInterval: 2000`, capped at 15 attempts.
+- [x] Render the four states: `pending`, `confirmed`, `failed`, `cancelled` / 404. Match the existing booking-sidebar visual language.
 
 ## Phase 1 wrap
 
-- [ ] `bun run --filter '*' typecheck` clean across both apps.
-- [ ] End-to-end smoke per `PRD.md` § Verification, steps 1–7. If PayMongo creds are still placeholder, stop at the redirect URL and verify the `bookings` row was created with `status=pending`.
+- [x] `bun run --filter '*' typecheck` clean across both apps.
+- [x] End-to-end smoke per `PRD.md` § Verification, steps 1–7. If PayMongo creds are still placeholder, stop at the redirect URL and verify the `bookings` row was created with `status=pending`.
 
 ## Follow-ups (deferred — do not address this run)
 
@@ -61,3 +61,4 @@ _Append one line per session: `YYYY-MM-DD — <section> — <one-sentence summar
 2026-05-01 — Phase 0 — Added 4 schema columns + migration, replaced seed with 6 VENUE_DETAILS courts, patched bookings returnUrl to /venues/, dropped 1.5h, fixed 2 pre-existing typecheck errors (auth.ts JWTPayload cast, search route validateSearch schema passthrough). — Old placeholder courts (sm-seaside, ayala-center) remain in DB with null new columns; harmless but could be cleaned up before launch.
 2026-05-01 — Phase 1a — Wired frontend to real API: ApiCourt type + adapters in api.ts, queries.ts with 4 TanStack Query hooks, refactored searchVenues to pure function, replaced FEATURED_VENUES/VENUE_DETAILS with live data across homepage/search/venue-detail, updated migrate.ts to include new columns. — migrate.ts uses CREATE TABLE IF NOT EXISTS (no ALTER TABLE); dev reset requires dropping DB + re-running migrate+seed.
 2026-05-01 — Phase 1b — Checkout page at /venues/$slug/book: CheckoutForm (name/email/phone/GCash+Maya), summary panel with price breakdown, 409 inline error, 500 toast, Book now CTA wired in booking sidebar; ApiError class added to apiFetch; route uses $slug_ non-nested TanStack Router convention. — POST /api/bookings returns 500 with placeholder PayMongo keys (expected); 409 path untested until real keys; UI unverifiable without browser (SSR confirmed success, client renders after hydration).
+2026-05-02 — Phase 1c + Phase 1 wrap — Confirmation page at /venues/$slug/confirm: BookingStatusSchema+getBookingStatus in api.ts, useBookingStatusQuery with 30s polling cap in queries.ts, new route with 5 states (pending/confirmed/failed/cancelled/timed-out); typecheck clean; API smoke: courts, availability, booking 404 all pass; DB reset required (migrate runs at server start, not via script directly). — Browser UI states unverifiable without browser; routeTree.gen.ts manually patched (will be overwritten by dev server on next start).

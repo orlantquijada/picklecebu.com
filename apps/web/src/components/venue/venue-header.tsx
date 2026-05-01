@@ -6,11 +6,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip";
-import type { VenueDetail } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 import { formatCentavos } from "#/lib/format";
 import { copyCurrentUrl } from "#/lib/share";
 
-export function VenueHeader({ venue }: { venue: VenueDetail }) {
+export function VenueHeader({ court }: { court: ApiCourt }) {
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="space-y-1">
@@ -20,19 +20,17 @@ export function VenueHeader({ venue }: { venue: VenueDetail }) {
           </a>
         </p>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {venue.name}
+          {court.name}
         </h1>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <MapPin className="size-3.5" />
-            {venue.area}, Cebu
+            {court.locationArea}, Cebu
           </span>
           <span>·</span>
-          <span>
-            {venue.courtCount} {venue.courtCount === 1 ? "court" : "courts"}
-          </span>
+          <span>1 court</span>
           <span>·</span>
-          <span>{formatCentavos(venue.pricePerHourCentavos)}/hr</span>
+          <span>{formatCentavos(court.hourlyRate)}/hr</span>
         </div>
       </div>
       <Tooltip>

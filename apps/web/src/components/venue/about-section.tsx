@@ -1,15 +1,15 @@
 import { useState } from "react";
 
 import { Separator } from "#/components/ui/separator";
-import type { VenueDetail } from "#/lib/constants";
+import type { ApiCourt } from "#/lib/api";
 
-export function AboutSection({ venue }: { venue: VenueDetail }) {
+export function AboutSection({ court }: { court: ApiCourt }) {
   const [expanded, setExpanded] = useState(false);
-  const isLong = venue.fullDescription.length > 200;
+  const isLong = court.description.length > 200;
   const displayText =
     isLong && !expanded
-      ? venue.fullDescription.slice(0, 200) + "..."
-      : venue.fullDescription;
+      ? court.description.slice(0, 200) + "..."
+      : court.description;
 
   return (
     <section id="about">
