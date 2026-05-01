@@ -12,12 +12,16 @@ app.get("/", async (c) => {
     .select({
       address: courts.address,
       amenities: courts.amenities,
+      cancellationPolicy: courts.cancellationPolicy,
       coverImageUrl: courts.coverImageUrl,
       description: courts.description,
+      galleryImageUrls: courts.galleryImageUrls,
       hourlyRate: courts.hourlyRate,
       id: courts.id,
       locationArea: courts.locationArea,
       name: courts.name,
+      operatingHours: courts.operatingHours,
+      rules: courts.rules,
       slug: courts.slug,
     })
     .from(courts)
@@ -27,6 +31,8 @@ app.get("/", async (c) => {
     result.map((court) => ({
       ...court,
       amenities: JSON.parse(court.amenities) as string[],
+      galleryImageUrls: JSON.parse(court.galleryImageUrls ?? "[]") as string[],
+      rules: JSON.parse(court.rules ?? "[]") as string[],
     }))
   );
 });
@@ -45,6 +51,8 @@ app.get("/:slug", async (c) => {
   return c.json({
     ...court,
     amenities: JSON.parse(court.amenities) as string[],
+    galleryImageUrls: JSON.parse(court.galleryImageUrls ?? "[]") as string[],
+    rules: JSON.parse(court.rules ?? "[]") as string[],
   });
 });
 

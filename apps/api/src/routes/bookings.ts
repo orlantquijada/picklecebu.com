@@ -59,7 +59,7 @@ app.post("/", zValidator("json", createBookingSchema), async (c) => {
   const totalAmount = subtotal + convenienceFee;
 
   const bookingId = `bk_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  const returnUrl = `${env.WEB_URL}/courts/${court.slug}/confirm?booking_id=${bookingId}`;
+  const returnUrl = `${env.WEB_URL}/venues/${court.slug}/confirm?booking_id=${bookingId}`;
 
   let checkoutUrl: string;
   let paymentIntentId: string;
