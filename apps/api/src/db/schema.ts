@@ -38,6 +38,10 @@ export const courts = sqliteTable("courts", {
     .notNull()
     .references(() => courtOwners.id),
   slug: text("slug").notNull().unique(),
+  galleryImageUrls: text("gallery_image_urls"),
+  operatingHours: text("operating_hours"),
+  cancellationPolicy: text("cancellation_policy"),
+  rules: text("rules"),
   updatedAt: text("updated_at")
     .default(sql`datetime('now')`)
     .notNull(),
