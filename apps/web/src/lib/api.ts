@@ -1,5 +1,7 @@
 import { env } from "#/env";
+import { AmenitySchema } from "./constants";
 import type { Amenity, CourtInfo, Venue, VenueDetail } from "./constants";
+import { z } from "zod";
 
 const BASE = env.VITE_API_URL;
 
@@ -23,35 +25,40 @@ export async function apiFetch<T>(
     ...options,
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
+    const raw = await res.json().catch(() => ({ error: res.statusText }));
+    const parsed = z.object({ error: z.string().optional() }).safeParse(raw);
     throw new ApiError(
       res.status,
-      (err as { error?: string }).error ?? res.statusText,
+      (parsed.success ? parsed.data.error : undefined) ?? res.statusText,
     );
   }
   return res.json() as Promise<T>;
 }
 
-export type ApiCourt = {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  address: string;
-  hourlyRate: number;
-  locationArea: string;
-  amenities: string[];
-  rules: string[];
-  galleryImageUrls: string[];
-  coverImageUrl: string;
-  operatingHours: string;
-  cancellationPolicy: string;
-};
+export const ApiCourtSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+  description: z.string(),
+  address: z.string(),
+  hourlyRate: z.number(),
+  locationArea: z.string(),
+  amenities: z.array(AmenitySchema),
+  rules: z.array(z.string()),
+  galleryImageUrls: z.array(z.string()),
+  coverImageUrl: z.string(),
+  operatingHours: z.string().optional(),
+  cancellationPolicy: z.string().optional(),
+});
+
+export type ApiCourt = z.infer<typeof ApiCourtSchema>;
 
 export type TimeSlot = { hour: number; available: boolean };
 
-export const getCourts = () => apiFetch<ApiCourt[]>("/api/courts");
-export const getCourt = (slug: string) => apiFetch<ApiCourt>(`/api/courts/${slug}`);
+export const getCourts = () =>
+  apiFetch<unknown>("/api/courts").then((d) => z.array(ApiCourtSchema).parse(d));
+export const getCourt = (slug: string) =>
+  apiFetch<unknown>(`/api/courts/${slug}`).then((d) => ApiCourtSchema.parse(d));
 export const getAvailability = (slug: string, date: string) =>
   apiFetch<TimeSlot[]>(`/api/courts/${slug}/availability?date=${date}`);
 
@@ -77,11 +84,9 @@ export const createBooking = (payload: CreateBookingPayload) =>
     body: JSON.stringify(payload),
   });
 
-function primaryCourtType(amenities: string[]): CourtInfo["type"] {
+function primaryCourtType(amenities: Amenity[]): CourtInfo["type"] {
   for (const a of amenities) {
-    const l = a.toLowerCase();
-    if (l === "indoor" || l === "outdoor" || l === "covered")
-      return (l.charAt(0).toUpperCase() + l.slice(1)) as CourtInfo["type"];
+    if (a === "Indoor" || a === "Outdoor" || a === "Covered") return a;
   }
   return "Outdoor";
 }
@@ -93,7 +98,7 @@ export function apiCourtToVenue(c: ApiCourt): Venue {
     area: c.locationArea,
     description: c.description,
     pricePerHourCentavos: c.hourlyRate,
-    amenities: c.amenities as Amenity[],
+    amenities: c.amenities,
     courtCount: 1,
     badge: undefined,
   };

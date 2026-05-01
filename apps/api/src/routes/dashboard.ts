@@ -26,7 +26,7 @@ async function assertCourtAccess(courtId: string, user: JWTPayload) {
 
 // GET /api/dashboard/courts
 app.get("/courts", async (c) => {
-  const user = c.get("user") as JWTPayload;
+  const user = c.get("user");
 
   const ownerCourts = await db
     .select()
@@ -36,49 +36,54 @@ app.get("/courts", async (c) => {
   return c.json(
     ownerCourts.map((court) => ({
       ...court,
-      amenities: JSON.parse(court.amenities) as string[],
+      amenities: z.array(z.string()).parse(JSON.parse(court.amenities)),
     }))
   );
 });
 
-// GET /api/dashboard/courts/:id/bookings
-app.get("/courts/:id/bookings", async (c) => {
-  const user = c.get("user") as JWTPayload;
-  const courtId = c.req.param("id");
-  const from = c.req.query("from");
-  const to = c.req.query("to");
-  const status = c.req.query("status");
-
-  await assertCourtAccess(courtId, user);
-
-  const conditions = [eq(bookings.courtId, courtId)];
-  if (from) {
-    conditions.push(gte(bookings.bookingDate, from));
-  }
-  if (to) {
-    conditions.push(lte(bookings.bookingDate, to));
-  }
-  if (status) {
-    conditions.push(
-      eq(
-        bookings.status,
-        status as "pending" | "confirmed" | "failed" | "cancelled"
-      )
-    );
-  }
-
-  const result = await db
-    .select()
-    .from(bookings)
-    .where(and(...conditions))
-    .orderBy(desc(bookings.bookingDate));
-
-  return c.json(result);
+const bookingsQuerySchema = z.object({
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  status: z
+    .enum(["pending", "confirmed", "failed", "cancelled"])
+    .optional(),
 });
+
+// GET /api/dashboard/courts/:id/bookings
+app.get(
+  "/courts/:id/bookings",
+  zValidator("query", bookingsQuerySchema),
+  async (c) => {
+    const user = c.get("user");
+    const courtId = c.req.param("id");
+    const { from, to, status } = c.req.valid("query");
+
+    await assertCourtAccess(courtId, user);
+
+    const conditions = [eq(bookings.courtId, courtId)];
+    if (from) {
+      conditions.push(gte(bookings.bookingDate, from));
+    }
+    if (to) {
+      conditions.push(lte(bookings.bookingDate, to));
+    }
+    if (status) {
+      conditions.push(eq(bookings.status, status));
+    }
+
+    const result = await db
+      .select()
+      .from(bookings)
+      .where(and(...conditions))
+      .orderBy(desc(bookings.bookingDate));
+
+    return c.json(result);
+  }
+);
 
 // GET /api/dashboard/bookings/summary
 app.get("/bookings/summary", async (c) => {
-  const user = c.get("user") as JWTPayload;
+  const user = c.get("user");
 
   const ownerCourts = await db
     .select({ id: courts.id })
@@ -141,7 +146,7 @@ const blockSchema = z.object({
 });
 
 app.post("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
-  const user = c.get("user") as JWTPayload;
+  const user = c.get("user");
   const courtId = c.req.param("id");
   const data = c.req.valid("json");
 
@@ -161,7 +166,7 @@ app.post("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
 
 // DELETE /api/dashboard/courts/:id/block
 app.delete("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
-  const user = c.get("user") as JWTPayload;
+  const user = c.get("user");
   const courtId = c.req.param("id");
   const data = c.req.valid("json");
 
@@ -190,7 +195,7 @@ app.patch(
   "/courts/:id/settings",
   zValidator("json", settingsSchema),
   async (c) => {
-    const user = c.get("user") as JWTPayload;
+    const user = c.get("user");
     const courtId = c.req.param("id");
     const data = c.req.valid("json");
 

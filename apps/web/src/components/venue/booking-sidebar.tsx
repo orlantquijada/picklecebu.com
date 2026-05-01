@@ -38,7 +38,7 @@ export function BookingSidebar({
             Date
           </p>
           <p className="text-sm">
-            {hasDate ? formatDateLabel(booking.date!) : "Add date"}
+            {booking?.date ? formatDateLabel(booking.date) : "Add date"}
           </p>
         </div>
         <div className="px-3 py-2.5">
@@ -46,7 +46,7 @@ export function BookingSidebar({
             Time
           </p>
           <p className="text-sm">
-            {hasTime ? formatHour(Number(booking.start!)) : "Add time"}
+            {booking?.start ? formatHour(Number(booking.start)) : "Add time"}
           </p>
         </div>
         <div className="col-span-2 border-t px-3 py-2.5">
@@ -59,7 +59,7 @@ export function BookingSidebar({
         </div>
       </div>
 
-      {hasDate && hasTime ? (
+      {hasDate && hasTime && booking?.date && booking?.start ? (
         <Button
           asChild
           className="mt-4 w-full bg-lime text-lime-foreground hover:bg-lime/90"
@@ -68,9 +68,9 @@ export function BookingSidebar({
             to="/venues/$slug/book"
             params={{ slug: venue.slug }}
             search={{
-              date: booking!.date!,
-              start: Number(booking!.start!),
-              duration: Number(booking!.duration ?? "60"),
+              date: booking.date,
+              start: Number(booking.start),
+              duration: Number(booking.duration ?? "60"),
             }}
           >
             Book now

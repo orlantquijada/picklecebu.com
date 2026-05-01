@@ -20,3 +20,7 @@ Before implementing, describe the proposed layout: component hierarchy, spacing 
 ## Code Quality
 
 Always run type checking (`tsc --noEmit` or equivalent) after TypeScript changes before considering a task complete.
+
+## Runtime Validation
+
+Use Zod schemas for all API response types. Parse at the fetch boundary (in the `getCourts`/`getCourt`-style fetcher), not inside mappers. Mappers receive already-validated data and work with typed values only. Define schemas first, infer TypeScript types from them via `z.infer`.

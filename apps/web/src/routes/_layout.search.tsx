@@ -1,10 +1,17 @@
-import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  stripSearchParams,
+} from "@tanstack/react-router";
 import { ChevronDown, SearchX, Share2 } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { BookingBar } from "#/components/landing/booking-bar";
-import { ResultCard, ResultCardSkeleton } from "#/components/search/result-card";
+import {
+  ResultCard,
+  ResultCardSkeleton,
+} from "#/components/search/result-card";
 import {
   SimpleSelect,
   SimpleSelectContent,
@@ -17,13 +24,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip";
+import { apiCourtToVenue } from "#/lib/api";
 import { QUICK_PICKS } from "#/lib/constants";
 import { formatHour } from "#/lib/format";
-import { copyCurrentUrl } from "#/lib/share";
-import { apiCourtToVenue } from "#/lib/api";
+import { useCourtsQuery, useAvailabilityQueries } from "#/lib/queries";
 import type { SearchResponse } from "#/lib/search";
 import { searchVenues } from "#/lib/search";
-import { useCourtsQuery, useAvailabilityQueries } from "#/lib/queries";
 import {
   applyQuickPick,
   getDefaults,
@@ -33,6 +39,7 @@ import {
   searchParamsSchema,
 } from "#/lib/search-params";
 import type { SearchParams } from "#/lib/search-params";
+import { copyCurrentUrl } from "#/lib/share";
 
 const quickPickDescriptions: Record<string, string> = {
   Tonight: "Showing courts available from 6 PM today",
@@ -53,7 +60,11 @@ function SearchPage() {
   const navigate = Route.useNavigate();
   const date = resolveDate(params);
 
-  const { data: courts, isPending: courtsPending, isFetching: courtsFetching } = useCourtsQuery();
+  const {
+    data: courts,
+    isPending: courtsPending,
+    isFetching: courtsFetching,
+  } = useCourtsQuery();
   const venues = useMemo(() => (courts ?? []).map(apiCourtToVenue), [courts]);
   const slotsMap = useAvailabilityQueries(courts ?? [], date);
 
@@ -75,7 +86,10 @@ function SearchPage() {
   function handleQuickPick(label: string) {
     const paramsWithDate = { ...params, date };
     if (isQuickPickActive(paramsWithDate, label)) {
-      navigate({ replace: true, search: removeQuickPick(paramsWithDate, label) });
+      navigate({
+        replace: true,
+        search: removeQuickPick(paramsWithDate, label),
+      });
     } else {
       const updated = applyQuickPick(paramsWithDate, label);
       navigate({ replace: true, search: updated });
@@ -83,7 +97,11 @@ function SearchPage() {
         description: quickPickDescriptions[label],
         action: {
           label: "Undo",
-          onClick: () => navigate({ replace: true, search: removeQuickPick(updated, label) }),
+          onClick: () =>
+            navigate({
+              replace: true,
+              search: removeQuickPick(updated, label),
+            }),
         },
       });
     }
@@ -138,7 +156,11 @@ function SearchPage() {
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={() => copyCurrentUrl("Share this URL to help others find these courts.")}
+                  onClick={() =>
+                    copyCurrentUrl(
+                      "Share this URL to help others find these courts."
+                    )
+                  }
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
                   <Share2 className="size-3.5" />
@@ -150,7 +172,11 @@ function SearchPage() {
             <SimpleSelect
               value={params.sort ?? "best"}
               onValueChange={(value) =>
-                updateParams({ sort: value as SearchParams["sort"] })
+                updateParams({
+                  sort: searchParamsSchema.shape.sort
+                    .catch("best")
+                    .parse(value),
+                })
               }
             >
               <SimpleSelectTrigger className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground outline-none">
@@ -191,51 +217,52 @@ function SearchPage() {
               {displayResponse.summary}
             </p>
 
-            {displayResponse.fallback && displayResponse.fallback.length > 0 && (
-              <div className="mx-auto mt-8 max-w-2xl">
-                <p className="mb-4 text-sm font-medium text-muted-foreground">
-                  Closest available options:
-                </p>
-                <div className="space-y-3">
-                  {displayResponse.fallback.map((result) => (
-                    <div
-                      key={result.venue.slug}
-                      className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3"
-                    >
-                      <div>
-                        <Link
-                          to="/venues/$slug"
-                          params={{ slug: result.venue.slug }}
-                          className="text-sm font-semibold hover:underline"
-                        >
-                          {result.venue.name}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {result.venue.area}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        {result.matchingSlots.slice(0, 3).map((slot) => (
+            {displayResponse.fallback &&
+              displayResponse.fallback.length > 0 && (
+                <div className="mx-auto mt-8 max-w-2xl">
+                  <p className="mb-4 text-sm font-medium text-muted-foreground">
+                    Closest available options:
+                  </p>
+                  <div className="space-y-3">
+                    {displayResponse.fallback.map((result) => (
+                      <div
+                        key={result.venue.slug}
+                        className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3"
+                      >
+                        <div>
                           <Link
-                            key={slot.hour}
                             to="/venues/$slug"
                             params={{ slug: result.venue.slug }}
-                            search={{
-                              date,
-                              duration: String(params.duration),
-                              start: String(slot.hour),
-                            }}
-                            className="rounded-lg border border-lime/40 bg-lime/10 px-2.5 py-1 text-xs font-semibold hover:bg-lime/20"
+                            className="text-sm font-semibold hover:underline"
                           >
-                            {formatHour(slot.hour)}
+                            {result.venue.name}
                           </Link>
-                        ))}
+                          <p className="text-xs text-muted-foreground">
+                            {result.venue.area}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          {result.matchingSlots.slice(0, 3).map((slot) => (
+                            <Link
+                              key={slot.hour}
+                              to="/venues/$slug"
+                              params={{ slug: result.venue.slug }}
+                              search={{
+                                date,
+                                duration: String(params.duration),
+                                start: String(slot.hour),
+                              }}
+                              className="rounded-lg border border-lime/40 bg-lime/10 px-2.5 py-1 text-xs font-semibold hover:bg-lime/20"
+                            >
+                              {formatHour(slot.hour)}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         )}
       </main>

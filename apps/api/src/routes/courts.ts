@@ -1,11 +1,14 @@
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { z } from "zod";
 
 import { db } from "../db/client";
 import { courts } from "../db/schema";
 import { getAvailableSlots } from "../lib/slots";
 
 const app = new Hono();
+
+const stringArray = z.array(z.string());
 
 app.get("/", async (c) => {
   const result = await db
@@ -30,9 +33,9 @@ app.get("/", async (c) => {
   return c.json(
     result.map((court) => ({
       ...court,
-      amenities: JSON.parse(court.amenities) as string[],
-      galleryImageUrls: JSON.parse(court.galleryImageUrls ?? "[]") as string[],
-      rules: JSON.parse(court.rules ?? "[]") as string[],
+      amenities: stringArray.parse(JSON.parse(court.amenities)),
+      galleryImageUrls: stringArray.parse(JSON.parse(court.galleryImageUrls ?? "[]")),
+      rules: stringArray.parse(JSON.parse(court.rules ?? "[]")),
     }))
   );
 });

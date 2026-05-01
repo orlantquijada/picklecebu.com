@@ -18,6 +18,7 @@ import {
   formatDateLabel,
   formatTimeLabel,
   getDefaults,
+  searchParamsSchema,
 } from "#/lib/search-params";
 
 const TIME_OPTIONS = [
@@ -65,9 +66,8 @@ function parseDurationOption(v: string): number {
 }
 
 function parseCourtTypeOption(v: string): SearchParams["courtType"] {
-  return v === "Any court"
-    ? "any"
-    : (v.toLowerCase() as SearchParams["courtType"]);
+  const lower = v === "Any court" ? "any" : v.toLowerCase();
+  return searchParamsSchema.shape.courtType.catch("any").parse(lower);
 }
 
 function useBookingBarState({
@@ -98,7 +98,7 @@ function useBookingBarState({
 
   function buildParams(overrides?: Partial<SearchParams>): SearchParams {
     return {
-      courtType: courtType as SearchParams["courtType"],
+      courtType,
       date,
       duration,
       sort: defaults.sort,
@@ -119,13 +119,13 @@ function useBookingBarState({
         to: "/search",
       });
     } else {
-      if ("where" in overrides) setLocalWhere(overrides.where!);
-      if ("time" in overrides) setLocalTime(overrides.time!);
-      if ("courtType" in overrides) setLocalCourtType(overrides.courtType!);
-      if ("duration" in overrides) setLocalDuration(overrides.duration!);
+      if (overrides.where !== undefined) setLocalWhere(overrides.where);
+      if (overrides.time !== undefined) setLocalTime(overrides.time);
+      if (overrides.courtType !== undefined) setLocalCourtType(overrides.courtType);
+      if (overrides.duration !== undefined) setLocalDuration(overrides.duration);
       if ("priceMax" in overrides) setLocalPriceMax(overrides.priceMax);
-      if ("amenities" in overrides)
-        setLocalAmenities(overrides.amenities ?? []);
+      if (overrides.amenities !== undefined)
+        setLocalAmenities(overrides.amenities);
     }
   }
 

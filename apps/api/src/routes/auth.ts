@@ -12,7 +12,7 @@ import { env } from "../env";
 import { requireAuth } from "../middleware/auth";
 import type { JWTPayload } from "../middleware/auth";
 
-const app = new Hono();
+const app = new Hono<{ Variables: { user: JWTPayload } }>();
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -49,7 +49,7 @@ app.post("/login", zValidator("json", loginSchema), async (c) => {
       sub: "admin",
     };
     const token = await sign(
-      payload as unknown as Record<string, unknown>,
+      payload as Record<string, unknown>,
       env.JWT_SECRET
     );
     setAuthCookie(c, token);
@@ -78,7 +78,7 @@ app.post("/login", zValidator("json", loginSchema), async (c) => {
     sub: owner.id,
   };
   const token = await sign(
-    payload as unknown as Record<string, unknown>,
+    payload as Record<string, unknown>,
     env.JWT_SECRET
   );
   setAuthCookie(c, token);
@@ -96,7 +96,7 @@ app.post("/logout", (c) => {
 });
 
 app.get("/me", requireAuth, (c) => {
-  const user = c.get("user") as JWTPayload;
+  const user = c.get("user");
   return c.json({
     email: user.email,
     id: user.sub,

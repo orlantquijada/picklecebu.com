@@ -131,7 +131,7 @@ export function removeQuickPick(params: SearchParams, label: string): SearchPara
       return { ...params, courtType: "any" };
     case "Under ₱400": {
       const { priceMax: _, ...rest } = params;
-      return { ...rest } as SearchParams;
+      return searchParamsSchema.parse(rest);
     }
     default:
       return params;
