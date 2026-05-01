@@ -8,6 +8,7 @@
     "format:unsafe": "ultracite fix --unsafe"
   },
   "dependencies": {
+    "@picklecebu/api-contracts": "workspace:*",
     "@hono/zod-validator": "^0.7.6",
     "@t3-oss/env-core": "^0.13.10",
     "bcryptjs": "^3.0.3",

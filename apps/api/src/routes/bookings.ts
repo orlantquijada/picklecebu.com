@@ -1,7 +1,7 @@
+import { CreateBookingPayloadSchema } from "@picklecebu/api-contracts";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
 
 import { db } from "../db/client";
 import { bookings, courts } from "../db/schema";
@@ -15,18 +15,7 @@ import { getAvailableSlots, isSlotAvailable } from "../lib/slots";
 
 const app = new Hono();
 
-const createBookingSchema = z.object({
-  bookingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  courtSlug: z.string(),
-  numHours: z.number().int().min(1).max(6),
-  paymentMethod: z.enum(["gcash", "paymaya", "card"]),
-  playerEmail: z.string().email(),
-  playerName: z.string().min(2).max(100),
-  playerPhone: z.string().min(7).max(20),
-  startHour: z.number().int().min(7).max(19),
-});
-
-app.post("/", zValidator("json", createBookingSchema), async (c) => {
+app.post("/", zValidator("json", CreateBookingPayloadSchema), async (c) => {
   const data = c.req.valid("json");
 
   const [court] = await db
