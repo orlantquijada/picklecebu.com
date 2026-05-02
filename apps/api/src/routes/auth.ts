@@ -15,7 +15,7 @@ import type { JWTPayload } from "../middleware/auth";
 const app = new Hono<{ Variables: { user: JWTPayload } }>();
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(1),
 });
 

@@ -21,7 +21,7 @@ app.post("/", zValidator("json", CreateBookingPayloadSchema), async (c) => {
   const [court] = await db
     .select()
     .from(courts)
-    .where(and(eq(courts.slug, data.courtSlug), eq(courts.isActive, 1)));
+    .where(and(eq(courts.slug, data.courtSlug), eq(courts.isActive, true)));
 
   if (!court) {
     return c.json({ error: "Court not found" }, 404);

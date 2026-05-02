@@ -3,10 +3,13 @@ import { Database } from "bun:sqlite";
 import { hash } from "bcryptjs";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 
+import { runMigrations } from "./migrate";
 import * as schema from "./schema";
 
+runMigrations();
+
 const sqlite = new Database("./picklecebu.sqlite");
-const db = drizzle(sqlite, { schema });
+const db = drizzle(sqlite, { schema, casing: "snake_case" });
 
 const seed = async () => {
   const passwordHash = await hash("password123", 12);
@@ -18,7 +21,7 @@ const seed = async () => {
       email: "owner@test.com",
       id: ownerId,
       name: "Juan dela Cruz",
-      notifyOnBooking: 1,
+      notifyOnBooking: true,
       passwordHash,
       phone: "+639171234567",
     })
@@ -34,16 +37,21 @@ const seed = async () => {
       description:
         "Baseline Pickle Club is Cebu's premier indoor pickleball facility, located in the heart of IT Park. Featuring four regulation-size indoor courts with professional-grade surfaces, air conditioning, and LED lighting.",
       hourlyRate: 35_000,
-      amenities: JSON.stringify(["Indoor", "Parking", "Pro Shop", "Showers"]),
+      amenities: ["Indoor", "Parking", "Pro Shop", "Showers"],
       operatingHours: "6:00 AM – 10:00 PM daily",
       cancellationPolicy: "Free cancellation up to 2 hours before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Proper court shoes required",
         "No food or drinks on the court",
         "Maximum 4 players per court",
         "15-minute grace period for late arrivals",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_baseline/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_baseline-1/800/600",
+        "https://picsum.photos/seed/court_baseline-2/800/600",
+        "https://picsum.photos/seed/court_baseline-3/800/600",
+      ],
     },
     {
       id: "court_cebu_pickle_arena",
@@ -54,22 +62,21 @@ const seed = async () => {
       description:
         "Cebu Pickle Arena is the largest dedicated pickleball facility in the Visayas region. With six full-size indoor courts, the arena hosts regular tournaments, clinics, and open play sessions.",
       hourlyRate: 40_000,
-      amenities: JSON.stringify([
-        "Indoor",
-        "Showers",
-        "Parking",
-        "Pro Shop",
-        "Floodlights",
-      ]),
+      amenities: ["Indoor", "Showers", "Parking", "Pro Shop", "Floodlights"],
       operatingHours: "5:00 AM – 11:00 PM daily",
       cancellationPolicy: "Free cancellation up to 4 hours before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Court shoes mandatory",
         "No outside food on courts",
         "Paddle rentals available at the pro shop",
         "Tournament courts may have restricted access",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_cebu_pickle_arena/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_cebu_pickle_arena-1/800/600",
+        "https://picsum.photos/seed/court_cebu_pickle_arena-2/800/600",
+        "https://picsum.photos/seed/court_cebu_pickle_arena-3/800/600",
+      ],
     },
     {
       id: "court_smash_lahug",
@@ -80,15 +87,20 @@ const seed = async () => {
       description:
         "Smash Court Lahug offers three covered outdoor courts perfect for those who enjoy playing in open air while staying protected from sun and rain.",
       hourlyRate: 30_000,
-      amenities: JSON.stringify(["Covered", "Floodlights", "Parking"]),
+      amenities: ["Covered", "Floodlights", "Parking"],
       operatingHours: "6:00 AM – 9:00 PM daily",
       cancellationPolicy: "Free cancellation up to 1 hour before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Court shoes required",
         "Bring your own paddle or rent on-site",
         "Water bottles only on court side",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_smash_lahug/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_smash_lahug-1/800/600",
+        "https://picsum.photos/seed/court_smash_lahug-2/800/600",
+        "https://picsum.photos/seed/court_smash_lahug-3/800/600",
+      ],
     },
     {
       id: "court_net_rush",
@@ -99,15 +111,20 @@ const seed = async () => {
       description:
         "Net Rush Mandaue is an intimate outdoor pickleball venue with two courts, ideal for casual play and small group sessions.",
       hourlyRate: 28_000,
-      amenities: JSON.stringify(["Outdoor", "Floodlights"]),
+      amenities: ["Outdoor", "Floodlights"],
       operatingHours: "6:00 AM – 9:00 PM daily",
       cancellationPolicy: "Free cancellation up to 1 hour before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Court shoes recommended",
         "Bring your own equipment",
         "No glass containers",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_net_rush/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_net_rush-1/800/600",
+        "https://picsum.photos/seed/court_net_rush-2/800/600",
+        "https://picsum.photos/seed/court_net_rush-3/800/600",
+      ],
     },
     {
       id: "court_volley_hub",
@@ -118,21 +135,21 @@ const seed = async () => {
       description:
         "Volley Hub Banilad is a premium indoor sports facility featuring five pickleball courts with tournament-grade surfaces.",
       hourlyRate: 45_000,
-      amenities: JSON.stringify([
-        "Indoor",
-        "Showers",
-        "Pro Shop",
-        "Parking",
-      ]),
+      amenities: ["Indoor", "Showers", "Pro Shop", "Parking"],
       operatingHours: "6:00 AM – 10:00 PM daily",
       cancellationPolicy: "Free cancellation up to 3 hours before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Indoor court shoes required (non-marking soles)",
         "No food on courts",
         "Equipment rental available",
         "Coaching sessions by appointment only",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_volley_hub/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_volley_hub-1/800/600",
+        "https://picsum.photos/seed/court_volley_hub-2/800/600",
+        "https://picsum.photos/seed/court_volley_hub-3/800/600",
+      ],
     },
     {
       id: "court_island_pickle",
@@ -143,16 +160,21 @@ const seed = async () => {
       description:
         "Island Pickle Mactan brings pickleball to the resort island of Mactan. Three covered courts with ocean breeze ventilation offer a unique playing experience.",
       hourlyRate: 32_000,
-      amenities: JSON.stringify(["Outdoor", "Covered", "Parking"]),
+      amenities: ["Outdoor", "Covered", "Parking"],
       operatingHours: "6:00 AM – 8:00 PM daily",
       cancellationPolicy: "Free cancellation up to 2 hours before your booking.",
-      rules: JSON.stringify([
+      rules: [
         "Court shoes required",
         "Paddle rental available",
         "Sunscreen application off-court only",
         "Water stations provided",
-      ]),
-      galleryImageUrls: "[]",
+      ],
+      coverImageUrl: "https://picsum.photos/seed/court_island_pickle/800/600",
+      galleryImageUrls: [
+        "https://picsum.photos/seed/court_island_pickle-1/800/600",
+        "https://picsum.photos/seed/court_island_pickle-2/800/600",
+        "https://picsum.photos/seed/court_island_pickle-3/800/600",
+      ],
     },
   ];
 
@@ -163,12 +185,12 @@ const seed = async () => {
         address: court.address,
         amenities: court.amenities,
         cancellationPolicy: court.cancellationPolicy,
-        coverImageUrl: null,
+        coverImageUrl: court.coverImageUrl,
         description: court.description,
         galleryImageUrls: court.galleryImageUrls,
         hourlyRate: court.hourlyRate,
         id: court.id,
-        isActive: 1,
+        isActive: true,
         locationArea: court.locationArea,
         name: court.name,
         operatingHours: court.operatingHours,

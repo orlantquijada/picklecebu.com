@@ -15,12 +15,7 @@ app.use("*", requireAdmin);
 // GET /api/admin/courts
 app.get("/courts", async (c) => {
   const result = await db.select().from(courts).orderBy(desc(courts.createdAt));
-  return c.json(
-    result.map((court) => ({
-      ...court,
-      amenities: JSON.parse(court.amenities) as string[],
-    }))
-  );
+  return c.json(result);
 });
 
 // POST /api/admin/courts
@@ -28,7 +23,7 @@ const onboardSchema = z.object({
   court: z.object({
     address: z.string().min(5),
     amenities: z.array(z.string()).default([]),
-    coverImageUrl: z.string().url().optional(),
+    coverImageUrl: z.url().optional(),
     description: z.string().optional(),
     hourlyRate: z.number().int().positive(),
     locationArea: z.string().min(2),
@@ -36,18 +31,29 @@ const onboardSchema = z.object({
     slug: z.string().regex(/^[a-z0-9-]+$/),
   }),
   owner: z.object({
-    email: z.string().email(),
+    email: z.email(),
     name: z.string().min(2),
     phone: z.string().optional(),
     tempPassword: z.string().min(8),
   }),
 });
 
+const patchCourtSchema = z.object({
+  name: z.string().min(2).optional(),
+  description: z.string().optional(),
+  address: z.string().min(5).optional(),
+  locationArea: z.string().min(2).optional(),
+  amenities: z.array(z.string()).optional(),
+  coverImageUrl: z.url().optional(),
+  hourlyRate: z.number().int().positive().optional(),
+  isActive: z.boolean().optional(),
+});
+
 app.post("/courts", zValidator("json", onboardSchema), async (c) => {
   const data = c.req.valid("json");
 
-  const ownerId = `co_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  const courtId = `ct_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const ownerId = crypto.randomUUID();
+  const courtId = crypto.randomUUID();
   const passwordHash = await hash(data.owner.tempPassword, 12);
 
   await db.insert(courtOwners).values({
@@ -60,12 +66,12 @@ app.post("/courts", zValidator("json", onboardSchema), async (c) => {
 
   await db.insert(courts).values({
     address: data.court.address,
-    amenities: JSON.stringify(data.court.amenities),
+    amenities: data.court.amenities,
     coverImageUrl: data.court.coverImageUrl,
     description: data.court.description,
     hourlyRate: data.court.hourlyRate,
     id: courtId,
-    isActive: 1,
+    isActive: true,
     locationArea: data.court.locationArea,
     name: data.court.name,
     ownerId,
@@ -76,50 +82,14 @@ app.post("/courts", zValidator("json", onboardSchema), async (c) => {
 });
 
 // PATCH /api/admin/courts/:id
-app.patch("/courts/:id", async (c) => {
+app.patch("/courts/:id", zValidator("json", patchCourtSchema), async (c) => {
   const courtId = c.req.param("id");
-  const body = await c.req.json<
-    Partial<{
-      name: string;
-      description: string;
-      address: string;
-      locationArea: string;
-      amenities: string[];
-      coverImageUrl: string;
-      hourlyRate: number;
-      isActive: number;
-    }>
-  >();
+  const body = c.req.valid("json");
 
-  const updates: Record<string, unknown> = {
-    updatedAt: new Date().toISOString(),
-  };
-  if (body.name !== undefined) {
-    updates.name = body.name;
-  }
-  if (body.description !== undefined) {
-    updates.description = body.description;
-  }
-  if (body.address !== undefined) {
-    updates.address = body.address;
-  }
-  if (body.locationArea !== undefined) {
-    updates.locationArea = body.locationArea;
-  }
-  if (body.amenities !== undefined) {
-    updates.amenities = JSON.stringify(body.amenities);
-  }
-  if (body.coverImageUrl !== undefined) {
-    updates.coverImageUrl = body.coverImageUrl;
-  }
-  if (body.hourlyRate !== undefined) {
-    updates.hourlyRate = body.hourlyRate;
-  }
-  if (body.isActive !== undefined) {
-    updates.isActive = body.isActive;
-  }
-
-  await db.update(courts).set(updates).where(eq(courts.id, courtId));
+  await db
+    .update(courts)
+    .set({ ...body, updatedAt: new Date().toISOString() })
+    .where(eq(courts.id, courtId));
   return c.json({ success: true });
 });
 

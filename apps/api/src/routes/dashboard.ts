@@ -33,17 +33,12 @@ app.get("/courts", async (c) => {
     .from(courts)
     .where(user.role === "admin" ? undefined : eq(courts.ownerId, user.sub));
 
-  return c.json(
-    ownerCourts.map((court) => ({
-      ...court,
-      amenities: z.array(z.string()).parse(JSON.parse(court.amenities)),
-    }))
-  );
+  return c.json(ownerCourts);
 });
 
 const bookingsQuerySchema = z.object({
-  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  from: z.iso.date().optional(),
+  to: z.iso.date().optional(),
   status: z
     .enum(["pending", "confirmed", "failed", "cancelled"])
     .optional(),
@@ -140,7 +135,7 @@ app.get("/bookings/summary", async (c) => {
 
 // POST /api/dashboard/courts/:id/block
 const blockSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date: z.iso.date(),
   hour: z.number().int().min(7).max(19),
   reason: z.string().optional(),
 });
