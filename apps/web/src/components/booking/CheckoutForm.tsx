@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ApiError, createBooking, type ApiCourt } from "#/lib/api";
@@ -33,6 +33,7 @@ function FieldError({ errors }: { errors: unknown[] }) {
 
 export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
   const [slotError, setSlotError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -44,7 +45,7 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
     onSubmit: async ({ value }) => {
       setSlotError(null);
       try {
-        const { checkoutUrl } = await createBooking({
+        const { bookingId, checkoutUrl } = await createBooking({
           bookingDate: date,
           courtSlug: slug,
           numHours,
@@ -54,7 +55,16 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
           playerPhone: value.phone,
           startHour,
         });
-        window.location.href = checkoutUrl;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        } else {
+          // TODO: remove mock navigation once PayMongo API keys are configured
+          navigate({
+            to: "/venues/$slug/confirm",
+            params: { slug },
+            search: { booking_id: bookingId },
+          });
+        }
       } catch (error) {
         if (error instanceof ApiError && error.status === 409) {
           setSlotError("This slot was just taken. Go back and pick another time.");

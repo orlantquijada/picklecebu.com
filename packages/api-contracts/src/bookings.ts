@@ -15,7 +15,7 @@ export type CreateBookingPayload = z.infer<typeof CreateBookingPayloadSchema>;
 
 export const CreateBookingResponseSchema = z.object({
   bookingId: z.string(),
-  checkoutUrl: z.string(),
+  checkoutUrl: z.string().nullable(),
 });
 
 export type CreateBookingResponse = z.infer<typeof CreateBookingResponseSchema>;

@@ -50,50 +50,55 @@ app.post("/", zValidator("json", CreateBookingPayloadSchema), async (c) => {
   const bookingId = `bk_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const returnUrl = `${env.WEB_URL}/venues/${court.slug}/confirm?booking_id=${bookingId}`;
 
-  let checkoutUrl: string;
-  let paymentIntentId: string;
+  let checkoutUrl: string | null;
+  let paymentIntentId: string | null = null;
 
-  try {
-    const [paymentMethod, intent] = await Promise.all([
-      createPaymentMethod({
-        billing: {
-          email: data.playerEmail,
-          name: data.playerName,
-          phone: data.playerPhone,
-        },
-        type: data.paymentMethod,
-      }),
-      createPaymentIntent({
-        amount: totalAmount,
-        description: `${court.name} — ${data.bookingDate} ${data.startHour}:00–${endHour}:00`,
-        metadata: {
-          booking_id: bookingId,
-          court_id: court.id,
-          player_email: data.playerEmail,
-        },
-        paymentMethodAllowed: [data.paymentMethod],
+  // TODO: remove mock path once PayMongo API keys are configured
+  if (env.MOCK_PAYMENT) {
+    checkoutUrl = null;
+  } else {
+    try {
+      const [paymentMethod, intent] = await Promise.all([
+        createPaymentMethod({
+          billing: {
+            email: data.playerEmail,
+            name: data.playerName,
+            phone: data.playerPhone,
+          },
+          type: data.paymentMethod,
+        }),
+        createPaymentIntent({
+          amount: totalAmount,
+          description: `${court.name} — ${data.bookingDate} ${data.startHour}:00–${endHour}:00`,
+          metadata: {
+            booking_id: bookingId,
+            court_id: court.id,
+            player_email: data.playerEmail,
+          },
+          paymentMethodAllowed: [data.paymentMethod],
+          returnUrl,
+          statementDescriptor: "PickleCebu",
+        }),
+      ]);
+
+      paymentIntentId = intent.id;
+
+      const attached = await attachPaymentIntent({
+        clientKey: intent.attributes.client_key,
+        paymentIntentId: intent.id,
+        paymentMethodId: paymentMethod.id,
         returnUrl,
-        statementDescriptor: "PickleCebu",
-      }),
-    ]);
+      });
 
-    paymentIntentId = intent.id;
-
-    const attached = await attachPaymentIntent({
-      clientKey: intent.attributes.client_key,
-      paymentIntentId: intent.id,
-      paymentMethodId: paymentMethod.id,
-      returnUrl,
-    });
-
-    const redirectUrl = attached.attributes.next_action?.redirect?.url;
-    if (!redirectUrl) {
-      throw new Error("No redirect URL from PayMongo");
+      const redirectUrl = attached.attributes.next_action?.redirect?.url;
+      if (!redirectUrl) {
+        throw new Error("No redirect URL from PayMongo");
+      }
+      checkoutUrl = redirectUrl;
+    } catch (error) {
+      console.error("PayMongo error:", error);
+      return c.json({ error: "Payment initialization failed" }, 500);
     }
-    checkoutUrl = redirectUrl;
-  } catch (error) {
-    console.error("PayMongo error:", error);
-    return c.json({ error: "Payment initialization failed" }, 500);
   }
 
   await db.insert(bookings).values({
@@ -108,7 +113,7 @@ app.post("/", zValidator("json", CreateBookingPayloadSchema), async (c) => {
     playerName: data.playerName,
     playerPhone: data.playerPhone,
     startHour: data.startHour,
-    status: "pending",
+    status: env.MOCK_PAYMENT ? "confirmed" : "pending",
     subtotal,
     totalAmount,
   });
