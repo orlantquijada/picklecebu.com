@@ -19,30 +19,33 @@ export const bookingStatusKeys = {
   detail: (id: string) => [...bookingStatusKeys.all, id] as const,
 };
 
-export const courtsQueryOptions = () =>
-  queryOptions({
+export function courtsQueryOptions() {
+  return queryOptions({
     queryKey: courtKeys.all,
     queryFn: getCourts,
   });
+}
 
-export const courtQueryOptions = (slug: string) =>
-  queryOptions({
+export function courtQueryOptions(slug: string) {
+  return queryOptions({
     queryKey: courtKeys.detail(slug),
     queryFn: () => getCourt(slug),
   });
+}
 
-export const availabilityQueryOptions = (slug: string, date: string) =>
-  queryOptions({
+export function availabilityQueryOptions(slug: string, date: string) {
+  return queryOptions({
     queryKey: availabilityKeys.slot(slug, date),
     queryFn: () => getAvailability(slug, date),
     enabled: !!slug && !!date,
   });
+}
 
-export const bookingStatusQueryOptions = (
+export function bookingStatusQueryOptions(
   id: string,
   pollingEnabled: boolean,
-) =>
-  queryOptions({
+) {
+  return queryOptions({
     queryKey: bookingStatusKeys.detail(id),
     queryFn: () => getBookingStatus(id),
     enabled: !!id,
@@ -55,17 +58,21 @@ export const bookingStatusQueryOptions = (
       : false,
     retry: false,
   });
+}
 
-export const useCourtsQuery = () => useQuery(courtsQueryOptions());
+export function useCourtsQuery() { return useQuery(courtsQueryOptions()); }
 
-export const useCourtQuery = (slug: string) =>
-  useQuery(courtQueryOptions(slug));
+export function useCourtQuery(slug: string) {
+  return useQuery(courtQueryOptions(slug));
+}
 
-export const useAvailabilityQuery = (slug: string, date: string) =>
-  useQuery(availabilityQueryOptions(slug, date));
+export function useAvailabilityQuery(slug: string, date: string) {
+  return useQuery(availabilityQueryOptions(slug, date));
+}
 
-export const useBookingStatusQuery = (id: string, pollingEnabled: boolean) =>
-  useQuery(bookingStatusQueryOptions(id, pollingEnabled));
+export function useBookingStatusQuery(id: string, pollingEnabled: boolean) {
+  return useQuery(bookingStatusQueryOptions(id, pollingEnabled));
+}
 
 export function useAvailabilityQueries(
   courts: ApiCourt[],

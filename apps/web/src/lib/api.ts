@@ -64,13 +64,15 @@ export async function getAvailability(slug: string, date: string) {
   );
 }
 
-export const createBooking = (payload: CreateBookingPayload) =>
-  apiFetch("/api/bookings", {
+export async function createBooking(payload: CreateBookingPayload) {
+  return apiFetch("/api/bookings", {
     method: "POST",
     body: JSON.stringify(payload),
   }).then((d) => CreateBookingResponseSchema.parse(d));
+}
 
-export const getBookingStatus = (id: string) =>
-  apiFetch(`/api/bookings/${id}/status`).then((d) =>
+export async function getBookingStatus(id: string) {
+  return apiFetch(`/api/bookings/${id}/status`).then((d) =>
     BookingStatusSchema.parse(d)
   );
+}

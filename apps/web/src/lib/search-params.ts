@@ -10,8 +10,8 @@ import {
 import { z } from "zod";
 import { formatHour } from "./format";
 
-const toDateStr = (d: Date) => format(d, "yyyy-MM-dd");
-const todayStr = () => toDateStr(new Date());
+function toDateStr(d: Date) { return format(d, "yyyy-MM-dd"); }
+function todayStr() { return toDateStr(new Date()); }
 
 export const amenityEnum = z.enum([
   "floodlights",
