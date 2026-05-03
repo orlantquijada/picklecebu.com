@@ -1,9 +1,22 @@
 import { useNavigate } from "@tanstack/react-router";
-import { CalendarDays, Clock, MapPin, Search, ChevronDown } from "lucide-react";
+import { format, parseISO, startOfDay } from "date-fns";
+import { CalendarDays, ChevronDown, Clock, MapPin, Search } from "lucide-react";
+import { Select as SelectPrimitive } from "radix-ui";
 import { useState } from "react";
 
 import { FiltersButton } from "#/components/search/filters-panel";
 import { Button } from "#/components/ui/button";
+import { Calendar } from "#/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "#/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+} from "#/components/ui/select";
 import {
   SimpleSelect,
   SimpleSelectContent,
@@ -79,7 +92,7 @@ function useBookingBarState({
   const defaults = { ...getDefaults(), ...defaultValues };
 
   const [localWhere, setLocalWhere] = useState(defaults.where);
-  const [localDate] = useState(defaults.date);
+  const [localDate, setLocalDate] = useState(defaults.date);
   const [localTime, setLocalTime] = useState(defaults.time);
   const [localCourtType, setLocalCourtType] = useState(defaults.courtType);
   const [localDuration, setLocalDuration] = useState(defaults.duration);
@@ -120,9 +133,12 @@ function useBookingBarState({
       });
     } else {
       if (overrides.where !== undefined) setLocalWhere(overrides.where);
+      if (overrides.date !== undefined) setLocalDate(overrides.date);
       if (overrides.time !== undefined) setLocalTime(overrides.time);
-      if (overrides.courtType !== undefined) setLocalCourtType(overrides.courtType);
-      if (overrides.duration !== undefined) setLocalDuration(overrides.duration);
+      if (overrides.courtType !== undefined)
+        setLocalCourtType(overrides.courtType);
+      if (overrides.duration !== undefined)
+        setLocalDuration(overrides.duration);
       if ("priceMax" in overrides) setLocalPriceMax(overrides.priceMax);
       if (overrides.amenities !== undefined)
         setLocalAmenities(overrides.amenities);
@@ -156,6 +172,92 @@ function useBookingBarState({
     update,
     handleSearch,
   };
+}
+
+function DateTimeSection({
+  variant,
+  date,
+  time,
+  update,
+}: {
+  variant: "mobile" | "desktop";
+  date: string;
+  time: string;
+  update: (overrides: Partial<SearchParams>) => void;
+}) {
+  const isMobile = variant === "mobile";
+  const [dateOpen, setDateOpen] = useState(false);
+  return (
+    <>
+      <Popover open={dateOpen} onOpenChange={setDateOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={
+              isMobile
+                ? "group flex w-full cursor-pointer items-center gap-3 border-b border-r border-border px-5 py-4 text-left transition-colors hover:bg-muted/50"
+                : "group flex flex-1 cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50"
+            }
+          >
+            <CalendarDays className="size-5 shrink-0 text-muted-foreground" />
+            <div className="min-w-0">
+              <div className="text-xs font-medium text-muted-foreground">
+                Date
+              </div>
+              <div className="truncate text-sm font-medium">
+                {formatDateLabel(date)}
+              </div>
+            </div>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={parseISO(date)}
+            onSelect={(d) => {
+              if (!d) return;
+              update({ date: format(d, "yyyy-MM-dd") });
+              setDateOpen(false);
+            }}
+            disabled={{ before: startOfDay(new Date()) }}
+            autoFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Select
+        value={formatTimeLabel(time)}
+        onValueChange={(v) => update({ time: parseTimeOption(v) })}
+      >
+        <SelectPrimitive.Trigger asChild>
+          <button
+            type="button"
+            className={
+              isMobile
+                ? "group flex w-full cursor-pointer items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-muted/50"
+                : "group flex h-full flex-1 cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50"
+            }
+          >
+            <Clock className="size-5 shrink-0 text-muted-foreground" />
+            <div className="min-w-0 text-left">
+              <div className="text-xs font-medium text-muted-foreground">
+                Time
+              </div>
+              <div className="truncate text-sm font-medium">
+                {formatTimeLabel(time)}
+              </div>
+            </div>
+          </button>
+        </SelectPrimitive.Trigger>
+        <SelectContent position="popper" align="end" className="max-h-48">
+          {TIME_OPTIONS.map((opt) => (
+            <SelectItem key={opt} value={opt}>
+              {opt}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
 }
 
 function UtilityPill({
@@ -203,9 +305,6 @@ export function BookingBar(props: BookingBarProps) {
     handleSearch,
   } = useBookingBarState(props);
 
-  const [whereOpen, setWhereOpen] = useState(false);
-  const [timeOpen, setTimeOpen] = useState(false);
-
   return (
     <div className="mx-auto w-full max-w-3xl">
       {/* Utility row */}
@@ -233,88 +332,43 @@ export function BookingBar(props: BookingBarProps) {
         {/* Mobile layout */}
         <div className="md:hidden">
           {/* Where */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setWhereOpen(!whereOpen)}
-              className="group flex w-full cursor-pointer items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-muted/50"
-            >
-              <MapPin className="size-5 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 text-left">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Where
-                </div>
-                <div className="truncate text-sm font-medium">
-                  {areaSlugToName(where)}
-                </div>
-              </div>
-            </button>
-            {whereOpen && (
-              <div className="absolute top-full left-0 z-50 w-full border-b border-border bg-white shadow-lg">
-                {AREAS_WITH_ALL.map((a) => (
-                  <button
-                    key={a.slug}
-                    type="button"
-                    onClick={() => {
-                      update({ where: a.slug });
-                      setWhereOpen(false);
-                    }}
-                    className="block w-full px-5 py-2.5 text-left text-sm font-medium hover:bg-muted/50"
-                  >
-                    {a.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Date + Time side-by-side */}
-          <div className="grid grid-cols-2">
-            <div className="group flex cursor-pointer items-center gap-3 border-b border-r border-border px-5 py-4 transition-colors hover:bg-muted/50">
-              <CalendarDays className="size-5 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Date
-                </div>
-                <div className="truncate text-sm font-medium">
-                  {formatDateLabel(date)}
-                </div>
-              </div>
-            </div>
-            <div className="relative">
+          <Select
+            value={where}
+            onValueChange={(v) => update({ where: v })}
+          >
+            <SelectPrimitive.Trigger asChild>
               <button
                 type="button"
-                onClick={() => setTimeOpen(!timeOpen)}
                 className="group flex w-full cursor-pointer items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-muted/50"
               >
-                <Clock className="size-5 shrink-0 text-muted-foreground" />
+                <MapPin className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 text-left">
                   <div className="text-xs font-medium text-muted-foreground">
-                    Time
+                    Where
                   </div>
                   <div className="truncate text-sm font-medium">
-                    {formatTimeLabel(time)}
+                    {areaSlugToName(where)}
                   </div>
                 </div>
               </button>
-              {timeOpen && (
-                <div className="absolute top-full right-0 z-50 max-h-48 w-40 overflow-y-auto rounded-lg border border-border bg-white py-1 shadow-lg">
-                  {TIME_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        update({ time: parseTimeOption(opt) });
-                        setTimeOpen(false);
-                      }}
-                      className="block w-full px-4 py-1.5 text-left text-xs font-medium hover:bg-muted/50"
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            </SelectPrimitive.Trigger>
+            <SelectContent position="popper" align="start" className="w-[var(--radix-select-trigger-width)]">
+              {AREAS_WITH_ALL.map((a) => (
+                <SelectItem key={a.slug} value={a.slug}>
+                  {a.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Date + Time side-by-side */}
+          <div className="grid grid-cols-2">
+            <DateTimeSection
+              variant="mobile"
+              date={date}
+              time={time}
+              update={update}
+            />
           </div>
 
           {/* Search button */}
@@ -329,85 +383,40 @@ export function BookingBar(props: BookingBarProps) {
 
         {/* Desktop layout */}
         <div className="hidden md:flex md:items-stretch">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setWhereOpen(!whereOpen)}
-              className="group flex h-full flex-[2] cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50"
-            >
-              <MapPin className="size-5 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 text-left">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Where
+          <Select
+            value={where}
+            onValueChange={(v) => update({ where: v })}
+          >
+            <SelectPrimitive.Trigger asChild>
+              <button
+                type="button"
+                className="group flex h-full flex-[2] cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50"
+              >
+                <MapPin className="size-5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 text-left">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Where
+                  </div>
+                  <div className="truncate text-sm font-medium">
+                    {areaSlugToName(where)}
+                  </div>
                 </div>
-                <div className="truncate text-sm font-medium">
-                  {areaSlugToName(where)}
-                </div>
-              </div>
-            </button>
-            {whereOpen && (
-              <div className="absolute top-full left-0 z-50 w-48 rounded-lg border border-border bg-white py-1 shadow-lg">
-                {AREAS_WITH_ALL.map((a) => (
-                  <button
-                    key={a.slug}
-                    type="button"
-                    onClick={() => {
-                      update({ where: a.slug });
-                      setWhereOpen(false);
-                    }}
-                    className="block w-full px-4 py-1.5 text-left text-sm font-medium hover:bg-muted/50"
-                  >
-                    {a.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="group flex flex-1 cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50">
-            <CalendarDays className="size-5 shrink-0 text-muted-foreground" />
-            <div className="min-w-0">
-              <div className="text-xs font-medium text-muted-foreground">
-                Date
-              </div>
-              <div className="truncate text-sm font-medium">
-                {formatDateLabel(date)}
-              </div>
-            </div>
-          </div>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setTimeOpen(!timeOpen)}
-              className="group flex h-full flex-1 cursor-pointer items-center gap-3 border-r border-border px-5 py-4 transition-colors hover:bg-muted/50"
-            >
-              <Clock className="size-5 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 text-left">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Time
-                </div>
-                <div className="truncate text-sm font-medium">
-                  {formatTimeLabel(time)}
-                </div>
-              </div>
-            </button>
-            {timeOpen && (
-              <div className="absolute top-full right-0 z-50 max-h-48 w-40 overflow-y-auto rounded-lg border border-border bg-white py-1 shadow-lg">
-                {TIME_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => {
-                      update({ time: parseTimeOption(opt) });
-                      setTimeOpen(false);
-                    }}
-                    className="block w-full px-4 py-1.5 text-left text-xs font-medium hover:bg-muted/50"
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              </button>
+            </SelectPrimitive.Trigger>
+            <SelectContent position="popper" align="start" className="w-48">
+              {AREAS_WITH_ALL.map((a) => (
+                <SelectItem key={a.slug} value={a.slug}>
+                  {a.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <DateTimeSection
+            variant="desktop"
+            date={date}
+            time={time}
+            update={update}
+          />
           <div className="flex items-center px-3">
             <Button
               onClick={handleSearch}
