@@ -1,6 +1,6 @@
 import { Separator } from "#/components/ui/separator";
 import type { ApiCourt } from "#/lib/api";
-import { AMENITY_ICONS } from "#/lib/amenity-icons";
+import { AMENITY_ICONS } from "#/components/icons/amenity-icons";
 
 export function AmenitiesSection({ court }: { court: ApiCourt }) {
   return (
