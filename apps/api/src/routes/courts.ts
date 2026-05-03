@@ -1,10 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
 import { db } from "../db/client";
 import { courts } from "../db/schema";
+import { getCourtBySlug } from "../lib/courts";
 import { getAvailableSlots } from "../lib/slots";
 
 const app = new Hono();
@@ -20,15 +21,8 @@ app.get("/", async (c) => {
 
 app.get("/:slug", async (c) => {
   const slug = c.req.param("slug");
-  const [court] = await db
-    .select()
-    .from(courts)
-    .where(and(eq(courts.slug, slug), eq(courts.isActive, true)));
-
-  if (!court) {
-    return c.json({ error: "Court not found" }, 404);
-  }
-
+  const court = await getCourtBySlug(slug);
+  if (!court) return c.json({ error: "Court not found" }, 404);
   return c.json(court);
 });
 
@@ -39,14 +33,8 @@ app.get(
     const slug = c.req.param("slug");
     const { date } = c.req.valid("query");
 
-    const [court] = await db
-      .select({ id: courts.id })
-      .from(courts)
-      .where(and(eq(courts.slug, slug), eq(courts.isActive, true)));
-
-    if (!court) {
-      return c.json({ error: "Court not found" }, 404);
-    }
+    const court = await getCourtBySlug(slug);
+    if (!court) return c.json({ error: "Court not found" }, 404);
 
     const slots = await getAvailableSlots(db, court.id, date);
     return c.json(slots);
