@@ -1,11 +1,12 @@
-import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ApiError, createBooking, type ApiCourt } from "#/lib/api";
+
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { ApiError, createBooking, type ApiCourt } from "#/lib/api";
 
 type PaymentMethod = "gcash" | "paymaya";
 
@@ -17,9 +18,15 @@ type Props = {
   court: ApiCourt;
 };
 
-const nameSchema = z.string().min(2, "At least 2 characters").max(100, "Too long");
-const emailSchema = z.string().email("Enter a valid email");
-const phoneSchema = z.string().min(7, "Enter a valid phone number").max(20, "Too long");
+const nameSchema = z
+  .string()
+  .min(2, "At least 2 characters")
+  .max(100, "Too long");
+const emailSchema = z.email("Enter a valid email");
+const phoneSchema = z
+  .string()
+  .min(7, "Enter a valid phone number")
+  .max(20, "Too long");
 
 function FieldError({ errors }: { errors: unknown[] }) {
   const first = errors[0];
@@ -29,6 +36,47 @@ function FieldError({ errors }: { errors: unknown[] }) {
       ? String((first as { message: unknown }).message)
       : String(first);
   return <p className="mt-1.5 text-sm text-destructive">{msg}</p>;
+}
+
+type StringField = {
+  name: string;
+  state: { value: string; meta: { isTouched: boolean; errors: unknown[] } };
+  handleChange: (val: string) => void;
+  handleBlur: () => void;
+};
+
+function FormField({
+  field,
+  label,
+  type,
+  placeholder,
+}: {
+  field: StringField;
+  label: string;
+  type?: string;
+  placeholder: string;
+}) {
+  return (
+    <div>
+      <label htmlFor={field.name} className="mb-1.5 block text-sm font-medium">
+        {label}
+      </label>
+      <Input
+        id={field.name}
+        type={type}
+        aria-invalid={
+          field.state.meta.isTouched && field.state.meta.errors.length > 0
+        }
+        value={field.state.value}
+        onChange={(e) => field.handleChange(e.target.value)}
+        onBlur={field.handleBlur}
+        placeholder={placeholder}
+      />
+      {field.state.meta.isTouched && (
+        <FieldError errors={field.state.meta.errors} />
+      )}
+    </div>
+  );
 }
 
 export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
@@ -67,7 +115,9 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
         }
       } catch (error) {
         if (error instanceof ApiError && error.status === 409) {
-          setSlotError("This slot was just taken. Go back and pick another time.");
+          setSlotError(
+            "This slot was just taken. Go back and pick another time."
+          );
         } else {
           toast.error("Payment setup failed. Please try again.");
         }
@@ -93,28 +143,11 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
         validators={{ onChange: nameSchema, onSubmit: nameSchema }}
       >
         {(field) => (
-          <div>
-            <label
-              htmlFor={field.name}
-              className="mb-1.5 block text-sm font-medium"
-            >
-              Full name
-            </label>
-            <Input
-              id={field.name}
-              aria-invalid={
-                field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0
-              }
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              placeholder="Juan Dela Cruz"
-            />
-            {field.state.meta.isTouched && (
-              <FieldError errors={field.state.meta.errors} />
-            )}
-          </div>
+          <FormField
+            field={field}
+            label="Full name"
+            placeholder="Juan Dela Cruz"
+          />
         )}
       </form.Field>
 
@@ -123,29 +156,12 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
         validators={{ onChange: emailSchema, onSubmit: emailSchema }}
       >
         {(field) => (
-          <div>
-            <label
-              htmlFor={field.name}
-              className="mb-1.5 block text-sm font-medium"
-            >
-              Email
-            </label>
-            <Input
-              id={field.name}
-              type="email"
-              aria-invalid={
-                field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0
-              }
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              placeholder="juan@example.com"
-            />
-            {field.state.meta.isTouched && (
-              <FieldError errors={field.state.meta.errors} />
-            )}
-          </div>
+          <FormField
+            field={field}
+            label="Email"
+            type="email"
+            placeholder="juan@example.com"
+          />
         )}
       </form.Field>
 
@@ -154,29 +170,12 @@ export function CheckoutForm({ slug, date, startHour, numHours }: Props) {
         validators={{ onChange: phoneSchema, onSubmit: phoneSchema }}
       >
         {(field) => (
-          <div>
-            <label
-              htmlFor={field.name}
-              className="mb-1.5 block text-sm font-medium"
-            >
-              Phone
-            </label>
-            <Input
-              id={field.name}
-              type="tel"
-              aria-invalid={
-                field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0
-              }
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              placeholder="+63 917 123 4567"
-            />
-            {field.state.meta.isTouched && (
-              <FieldError errors={field.state.meta.errors} />
-            )}
-          </div>
+          <FormField
+            field={field}
+            label="Phone"
+            type="tel"
+            placeholder="+63 917 123 4567"
+          />
         )}
       </form.Field>
 
