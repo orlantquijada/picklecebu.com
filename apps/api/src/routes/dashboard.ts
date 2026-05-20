@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
@@ -24,6 +25,15 @@ async function assertCourtAccess(courtId: string, user: JWTPayload) {
   return court;
 }
 
+async function getCourtContext(
+  c: Context<{ Variables: { user: JWTPayload } }>
+) {
+  const user = c.get("user");
+  const courtId = c.req.param("id")!;
+  await assertCourtAccess(courtId, user);
+  return { user, courtId };
+}
+
 // GET /api/dashboard/courts
 app.get("/courts", async (c) => {
   const user = c.get("user");
@@ -39,9 +49,7 @@ app.get("/courts", async (c) => {
 const bookingsQuerySchema = z.object({
   from: z.iso.date().optional(),
   to: z.iso.date().optional(),
-  status: z
-    .enum(["pending", "confirmed", "failed", "cancelled"])
-    .optional(),
+  status: z.enum(["pending", "confirmed", "failed", "cancelled"]).optional(),
 });
 
 // GET /api/dashboard/courts/:id/bookings
@@ -141,11 +149,8 @@ const blockSchema = z.object({
 });
 
 app.post("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
-  const user = c.get("user");
-  const courtId = c.req.param("id");
+  const { courtId } = await getCourtContext(c);
   const data = c.req.valid("json");
-
-  await assertCourtAccess(courtId, user);
 
   const id = `bs_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`;
   await db.insert(blockedSlots).values({
@@ -161,11 +166,8 @@ app.post("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
 
 // DELETE /api/dashboard/courts/:id/block
 app.delete("/courts/:id/block", zValidator("json", blockSchema), async (c) => {
-  const user = c.get("user");
-  const courtId = c.req.param("id");
+  const { courtId } = await getCourtContext(c);
   const data = c.req.valid("json");
-
-  await assertCourtAccess(courtId, user);
 
   await db
     .delete(blockedSlots)
@@ -190,11 +192,8 @@ app.patch(
   "/courts/:id/settings",
   zValidator("json", settingsSchema),
   async (c) => {
-    const user = c.get("user");
-    const courtId = c.req.param("id");
+    const { courtId } = await getCourtContext(c);
     const data = c.req.valid("json");
-
-    await assertCourtAccess(courtId, user);
 
     const updates: Partial<typeof courts.$inferInsert> = {
       updatedAt: new Date().toISOString(),

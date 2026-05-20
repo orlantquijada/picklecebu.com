@@ -10,5 +10,10 @@
       "apps/*"
     ]
   },
+  "ignorePatterns": [
+    "apps/web/src/components/ui/**",
+    "apps/mobile/**",
+    ".claude/**"
+  ],
   "rules": {}
 }

@@ -18,32 +18,34 @@ interface MyRouterContext {
   queryClient: QueryClient;
 }
 
-const RootDocument = ({ children }: { children: React.ReactNode }) => (
-  <html lang="en">
-    <head>
-      <HeadContent />
-    </head>
-    <body className="font-sans antialiased wrap-anywhere">
-      <TanStackQueryProvider>
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
-        <Toaster />
-        <TanStackDevtools
-          config={{ position: "bottom-right" }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
-      </TanStackQueryProvider>
-      <Scripts />
-    </body>
-  </html>
-);
+function RootDocument({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body className="font-sans antialiased wrap-anywhere">
+        <TanStackQueryProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+          <Toaster />
+          <TanStackDevtools
+            config={{ position: "bottom-right" }}
+            plugins={[
+              {
+                name: "Tanstack Router",
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              TanStackQueryDevtools,
+            ]}
+          />
+        </TanStackQueryProvider>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
